@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sparkle_lite/features/symptom_tracker/add_symptom_screen.dart';
+import 'package:sparkle_lite/features/symptom_tracker/symptom_history_screen.dart';
 
 import '../../features/auth/login_screen.dart';
 import '../../features/auth/onboarding_screen.dart';
@@ -12,6 +14,8 @@ class AppRouter {
   static const String onboarding = '/onboarding';
   static const String healthProfile = '/health-profile';
   static const String dashboard = '/dashboard';
+  static const String symptomHistory = '/symptom-history';
+  static const String addSymptom = '/add-symptom';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -25,6 +29,10 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const HealthProfileScreen());
       case dashboard:
         return MaterialPageRoute(builder: (_) => const DashboardScreen());
+      case symptomHistory:
+        return MaterialPageRoute(builder: (_) => const SymptomHistoryScreen());
+      case addSymptom:
+        return MaterialPageRoute(builder: (_) => const AddSymptomScreen());
       default:
         return MaterialPageRoute(builder: (_) => const LoginScreen());
     }

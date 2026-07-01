@@ -1,7 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'core/routing/app_router.dart';
+import 'package:sparkle_lite/core/routing/app_router.dart';
+import 'package:sparkle_lite/features/auth/login_screen.dart';
+import 'package:sparkle_lite/features/dashboard/dashboard_screen.dart';
+import 'package:sparkle_lite/features/symptom_tracker/symptom_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/auth_provider.dart';
 import 'firebase_options.dart';
@@ -18,13 +21,30 @@ class SparkleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => AuthProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => SymptomProvider()),
+      ],
       child: MaterialApp(
         title: 'Sparkle Lite',
         theme: AppTheme.lightTheme,
         debugShowCheckedModeBanner: false,
+
         onGenerateRoute: AppRouter.generateRoute,
-        initialRoute: AppRouter.login,
+
+        home: Consumer<AuthProvider>(
+          builder: (context, auth, _) {
+            if (auth.status == AuthStatus.initial) {
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            return auth.isAuthenticated
+                ? const DashboardScreen()
+                : const LoginScreen();
+          },
+        ),
       ),
     );
   }

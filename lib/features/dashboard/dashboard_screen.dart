@@ -26,7 +26,20 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: const Center(child: Text('Dashboard coming on Day 3 🌸')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Dashboard 🌸'),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () =>
+                  Navigator.pushNamed(context, AppRouter.symptomHistory),
+              child: const Text('Symptom Tracker'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
