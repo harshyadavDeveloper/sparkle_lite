@@ -18,22 +18,22 @@ class FamilyMember {
   });
 
   factory FamilyMember.fromMap(Map<String, dynamic> map) => FamilyMember(
-        id: map['id'] ?? '',
-        userId: map['userId'] ?? '',
-        name: map['name'] ?? '',
-        relationship: map['relationship'] ?? '',
-        ageRange: map['ageRange'] ?? '',
-        notes: map['notes'],
-        createdAt: DateTime.parse(map['createdAt']),
-      );
+    id: map['id'] ?? '',
+    userId: map['userId'] ?? '',
+    name: map['name'] ?? '',
+    relationship: map['relationship'] ?? '',
+    ageRange: map['ageRange'] ?? '',
+    notes: map['notes'],
+    createdAt: DateTime.parse(map['createdAt']),
+  );
 
   Map<String, dynamic> toMap() => {
-        'id': id,
-        'userId': userId,
-        'name': name,
-        'relationship': relationship,
-        'ageRange': ageRange,
-        'notes': notes,
-        'createdAt': createdAt.toIso8601String(),
-      };
+    'id': id,
+    'userId': userId,
+    'name': name,
+    'relationship': relationship,
+    'ageRange': ageRange,
+    'notes': notes,
+    'createdAt': createdAt.toIso8601String(),
+  };
 }

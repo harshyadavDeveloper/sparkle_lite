@@ -24,29 +24,28 @@ class DoctorSummary {
   });
 
   factory DoctorSummary.fromMap(Map<String, dynamic> map) => DoctorSummary(
-        id: map['id'] ?? '',
-        userId: map['userId'] ?? '',
-        profileSnapshot: map['profileSnapshot'] ?? '',
-        recentSymptoms: List<String>.from(map['recentSymptoms'] ?? []),
-        periodHistory: List<String>.from(map['periodHistory'] ?? []),
-        uploadedRecordTitles:
-            List<String>.from(map['uploadedRecordTitles'] ?? []),
-        currentMedications: List<String>.from(map['currentMedications'] ?? []),
-        questionsForDoctor: List<String>.from(map['questionsForDoctor'] ?? []),
-        userNotes: map['userNotes'],
-        generatedAt: DateTime.parse(map['generatedAt']),
-      );
+    id: map['id'] ?? '',
+    userId: map['userId'] ?? '',
+    profileSnapshot: map['profileSnapshot'] ?? '',
+    recentSymptoms: List<String>.from(map['recentSymptoms'] ?? []),
+    periodHistory: List<String>.from(map['periodHistory'] ?? []),
+    uploadedRecordTitles: List<String>.from(map['uploadedRecordTitles'] ?? []),
+    currentMedications: List<String>.from(map['currentMedications'] ?? []),
+    questionsForDoctor: List<String>.from(map['questionsForDoctor'] ?? []),
+    userNotes: map['userNotes'],
+    generatedAt: DateTime.parse(map['generatedAt']),
+  );
 
   Map<String, dynamic> toMap() => {
-        'id': id,
-        'userId': userId,
-        'profileSnapshot': profileSnapshot,
-        'recentSymptoms': recentSymptoms,
-        'periodHistory': periodHistory,
-        'uploadedRecordTitles': uploadedRecordTitles,
-        'currentMedications': currentMedications,
-        'questionsForDoctor': questionsForDoctor,
-        'userNotes': userNotes,
-        'generatedAt': generatedAt.toIso8601String(),
-      };
+    'id': id,
+    'userId': userId,
+    'profileSnapshot': profileSnapshot,
+    'recentSymptoms': recentSymptoms,
+    'periodHistory': periodHistory,
+    'uploadedRecordTitles': uploadedRecordTitles,
+    'currentMedications': currentMedications,
+    'questionsForDoctor': questionsForDoctor,
+    'userNotes': userNotes,
+    'generatedAt': generatedAt.toIso8601String(),
+  };
 }

@@ -16,22 +16,22 @@ class PrivacySettings {
   });
 
   factory PrivacySettings.fromMap(Map<String, dynamic> map) => PrivacySettings(
-        userId: map['userId'] ?? '',
-        hideSensitiveDashboardDetails:
-            map['hideSensitiveDashboardDetails'] ?? false,
-        useGenericNotificationText: map['useGenericNotificationText'] ?? true,
-        requireConfirmationBeforeSharing:
-            map['requireConfirmationBeforeSharing'] ?? true,
-        familyProfileAccessEnabled: map['familyProfileAccessEnabled'] ?? false,
-        updatedAt: DateTime.parse(map['updatedAt']),
-      );
+    userId: map['userId'] ?? '',
+    hideSensitiveDashboardDetails:
+        map['hideSensitiveDashboardDetails'] ?? false,
+    useGenericNotificationText: map['useGenericNotificationText'] ?? true,
+    requireConfirmationBeforeSharing:
+        map['requireConfirmationBeforeSharing'] ?? true,
+    familyProfileAccessEnabled: map['familyProfileAccessEnabled'] ?? false,
+    updatedAt: DateTime.parse(map['updatedAt']),
+  );
 
   Map<String, dynamic> toMap() => {
-        'userId': userId,
-        'hideSensitiveDashboardDetails': hideSensitiveDashboardDetails,
-        'useGenericNotificationText': useGenericNotificationText,
-        'requireConfirmationBeforeSharing': requireConfirmationBeforeSharing,
-        'familyProfileAccessEnabled': familyProfileAccessEnabled,
-        'updatedAt': updatedAt.toIso8601String(),
-      };
+    'userId': userId,
+    'hideSensitiveDashboardDetails': hideSensitiveDashboardDetails,
+    'useGenericNotificationText': useGenericNotificationText,
+    'requireConfirmationBeforeSharing': requireConfirmationBeforeSharing,
+    'familyProfileAccessEnabled': familyProfileAccessEnabled,
+    'updatedAt': updatedAt.toIso8601String(),
+  };
 }

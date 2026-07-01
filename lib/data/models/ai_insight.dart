@@ -20,25 +20,26 @@ class AiInsight {
   });
 
   factory AiInsight.fromMap(Map<String, dynamic> map) => AiInsight(
-        id: map['id'] ?? '',
-        userId: map['userId'] ?? '',
-        summary: map['summary'] ?? '',
-        possiblePattern: map['possiblePattern'] ?? '',
-        careGuidance: map['careGuidance'] ?? '',
-        doctorQuestions: List<String>.from(map['doctorQuestions'] ?? []),
-        disclaimer: map['disclaimer'] ??
-            'This is not a diagnosis and does not replace medical advice.',
-        createdAt: DateTime.parse(map['createdAt']),
-      );
+    id: map['id'] ?? '',
+    userId: map['userId'] ?? '',
+    summary: map['summary'] ?? '',
+    possiblePattern: map['possiblePattern'] ?? '',
+    careGuidance: map['careGuidance'] ?? '',
+    doctorQuestions: List<String>.from(map['doctorQuestions'] ?? []),
+    disclaimer:
+        map['disclaimer'] ??
+        'This is not a diagnosis and does not replace medical advice.',
+    createdAt: DateTime.parse(map['createdAt']),
+  );
 
   Map<String, dynamic> toMap() => {
-        'id': id,
-        'userId': userId,
-        'summary': summary,
-        'possiblePattern': possiblePattern,
-        'careGuidance': careGuidance,
-        'doctorQuestions': doctorQuestions,
-        'disclaimer': disclaimer,
-        'createdAt': createdAt.toIso8601String(),
-      };
+    'id': id,
+    'userId': userId,
+    'summary': summary,
+    'possiblePattern': possiblePattern,
+    'careGuidance': careGuidance,
+    'doctorQuestions': doctorQuestions,
+    'disclaimer': disclaimer,
+    'createdAt': createdAt.toIso8601String(),
+  };
 }
