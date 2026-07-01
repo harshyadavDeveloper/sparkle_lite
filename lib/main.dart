@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:sparkle_lite/core/routing/app_router.dart';
 import 'package:sparkle_lite/features/auth/login_screen.dart';
 import 'package:sparkle_lite/features/dashboard/dashboard_screen.dart';
+import 'package:sparkle_lite/features/records/health_record_provider.dart';
 import 'package:sparkle_lite/features/symptom_tracker/symptom_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/auth_provider.dart';
@@ -24,6 +25,7 @@ class SparkleApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => SymptomProvider()),
+        ChangeNotifierProvider(create: (_) => HealthRecordProvider()),
       ],
       child: MaterialApp(
         title: 'Sparkle Lite',
