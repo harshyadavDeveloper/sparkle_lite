@@ -36,7 +36,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
 
     if (success && mounted) {
-      Navigator.pushReplacementNamed(context, AppRouter.onboarding);
+      await Navigator.pushReplacementNamed(context, AppRouter.onboarding);
     }
   }
 
@@ -62,7 +62,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
+                const Text(
                   'Your information is private and secure.',
                   style: TextStyle(color: AppTheme.textSecondary),
                 ),
@@ -154,7 +154,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       'Already have an account? ',
                       style: TextStyle(color: AppTheme.textSecondary),
                     ),

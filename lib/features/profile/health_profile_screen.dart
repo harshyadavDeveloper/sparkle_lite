@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+
 import '../../core/routing/app_router.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/user_profile.dart';
@@ -70,7 +71,7 @@ class _HealthProfileScreenState extends State<HealthProfileScreen> {
           .set(profile.toMap());
 
       if (mounted) {
-        Navigator.pushReplacementNamed(context, AppRouter.dashboard);
+        await Navigator.pushReplacementNamed(context, AppRouter.dashboard);
       }
     } catch (e, st) {
       if (mounted) {
@@ -106,7 +107,7 @@ class _HealthProfileScreenState extends State<HealthProfileScreen> {
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              Text(
+              const Text(
                 'Sensitive fields are optional. You can update this anytime.',
                 style: TextStyle(color: AppTheme.textSecondary),
               ),
@@ -127,7 +128,7 @@ class _HealthProfileScreenState extends State<HealthProfileScreen> {
 
               // Age Range
               DropdownButtonFormField<String>(
-                value: _selectedAgeRange,
+                initialValue: _selectedAgeRange,
                 decoration: const InputDecoration(labelText: 'Age range'),
                 items: _ageRanges
                     .map((e) => DropdownMenuItem(value: e, child: Text(e)))
@@ -138,7 +139,7 @@ class _HealthProfileScreenState extends State<HealthProfileScreen> {
 
               // Life Stage
               DropdownButtonFormField<String>(
-                value: _selectedLifeStage,
+                initialValue: _selectedLifeStage,
                 decoration: const InputDecoration(labelText: 'Life stage'),
                 items: _lifeStages
                     .map((e) => DropdownMenuItem(value: e, child: Text(e)))
@@ -149,7 +150,7 @@ class _HealthProfileScreenState extends State<HealthProfileScreen> {
 
               // Cycle Status
               DropdownButtonFormField<String>(
-                value: _selectedCycleStatus,
+                initialValue: _selectedCycleStatus,
                 decoration: const InputDecoration(
                   labelText: 'Menstrual cycle status',
                 ),
@@ -161,7 +162,7 @@ class _HealthProfileScreenState extends State<HealthProfileScreen> {
               const SizedBox(height: 20),
 
               // Known Conditions (optional)
-              Text(
+              const Text(
                 'Known conditions (optional)',
                 style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
               ),
@@ -180,7 +181,7 @@ class _HealthProfileScreenState extends State<HealthProfileScreen> {
                             : _selectedConditions.remove(condition);
                       });
                     },
-                    selectedColor: AppTheme.primary.withOpacity(0.2),
+                    selectedColor: AppTheme.primary.withValues(alpha: 0.2),
                     checkmarkColor: AppTheme.primary,
                   );
                 }).toList(),

@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (success && mounted) {
-      Navigator.pushReplacementNamed(context, AppRouter.dashboard);
+      await Navigator.pushReplacementNamed(context, AppRouter.dashboard);
     }
   }
 
@@ -142,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       "Don't have an account? ",
                       style: TextStyle(color: AppTheme.textSecondary),
                     ),

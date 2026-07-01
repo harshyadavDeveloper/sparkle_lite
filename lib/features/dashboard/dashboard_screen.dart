@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../core/theme/app_theme.dart';
-import '../auth/auth_provider.dart';
+
 import '../../core/routing/app_router.dart';
+import '../auth/auth_provider.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -20,7 +20,7 @@ class DashboardScreen extends StatelessWidget {
             onPressed: () async {
               await auth.signOut();
               if (context.mounted) {
-                Navigator.pushReplacementNamed(context, AppRouter.login);
+                await Navigator.pushReplacementNamed(context, AppRouter.login);
               }
             },
           ),

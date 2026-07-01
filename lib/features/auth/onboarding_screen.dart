@@ -70,7 +70,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Text(
                           page['body']!,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: AppTheme.textSecondary,
                             fontSize: 16,
                             height: 1.5,
@@ -94,7 +94,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   decoration: BoxDecoration(
                     color: _currentPage == i
                         ? AppTheme.primary
-                        : AppTheme.primary.withOpacity(0.3),
+                        : AppTheme.primary.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),

@@ -14,7 +14,7 @@ class AppTheme {
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
       seedColor: primary,
-      background: background,
+      // background: background,
       surface: surface,
       error: error,
     ),

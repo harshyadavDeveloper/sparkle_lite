@@ -36,7 +36,6 @@ class AuthProvider extends ChangeNotifier {
       return true;
     } on FirebaseAuthException catch (e) {
       _status = AuthStatus.error;
-      print('Error signing up user: ${e.code} - ${e.message}');
       _errorMessage = _mapFirebaseError(e.code);
       notifyListeners();
       return false;

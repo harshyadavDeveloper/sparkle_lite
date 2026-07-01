@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+
 import '../../features/auth/login_screen.dart';
-import '../../features/auth/signup_screen.dart';
 import '../../features/auth/onboarding_screen.dart';
-import '../../features/profile/health_profile_screen.dart';
+import '../../features/auth/signup_screen.dart';
 import '../../features/dashboard/dashboard_screen.dart';
+import '../../features/profile/health_profile_screen.dart';
 
 class AppRouter {
   static const String login = '/login';
