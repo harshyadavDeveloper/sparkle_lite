@@ -11,10 +11,12 @@ class AiInsightProvider extends ChangeNotifier {
   final AiInsightRepository _repository = AiInsightRepository();
 
   AiInsight? _currentInsight;
+  List<AiInsight> _savedInsights = [];
   AiInsightStatus _status = AiInsightStatus.initial;
   String? _errorMessage;
 
   AiInsight? get currentInsight => _currentInsight;
+  List<AiInsight> get savedInsights => _savedInsights;
   AiInsightStatus get status => _status;
   String? get errorMessage => _errorMessage;
 
@@ -53,6 +55,15 @@ class AiInsightProvider extends ChangeNotifier {
       _errorMessage = 'Failed to save insight.';
       notifyListeners();
       return false;
+    }
+  }
+
+  Future<void> loadInsights(String userId) async {
+    try {
+      _savedInsights = await _repository.getInsights(userId);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Failed to load insights: $e');
     }
   }
 

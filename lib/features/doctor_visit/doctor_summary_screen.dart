@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sparkle_lite/data/models/user_profile.dart';
 import '../../core/theme/app_theme.dart';
 import '../records/health_record_provider.dart';
 import '../symptom_tracker/symptom_provider.dart';
@@ -17,14 +20,63 @@ class _DoctorSummaryScreenState extends State<DoctorSummaryScreen> {
   final _notesController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) return;
+
+      final symptomProvider = context.read<SymptomProvider>();
+      final recordProvider = context.read<HealthRecordProvider>();
+
+      // Only fetch if not already loaded — avoids redundant Firestore calls
+      if (!symptomProvider.hasLogs &&
+          symptomProvider.status == SymptomStatus.initial) {
+        symptomProvider.loadLogs(userId);
+      }
+
+      if (!recordProvider.hasRecords &&
+          recordProvider.status == RecordStatus.initial) {
+        recordProvider.loadRecords(userId);
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _notesController.dispose();
     super.dispose();
   }
 
+  Future<UserProfile> _loadProfile() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final now = DateTime.now();
+
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('profiles')
+          .doc(userId)
+          .get();
+
+      if (doc.exists && doc.data() != null) {
+        return UserProfile.fromMap(doc.data()!);
+      }
+    } catch (e) {
+      debugPrint('Profile load failed: $e');
+    }
+
+    return UserProfile(
+      userId: userId,
+      displayName: 'User',
+      ageRange: 'Not specified',
+      lifeStage: 'General wellness',
+      menstrualCycleStatus: 'Not specified',
+      createdAt: now,
+      updatedAt: now,
+    );
+  }
+
   Future<void> _generate() async {
-    // We'll need profile — for now use a minimal fallback
-    // Profile loading will be wired in dashboard
     final symptomProvider = context.read<SymptomProvider>();
     final recordProvider = context.read<HealthRecordProvider>();
     final summaryProvider = context.read<DoctorSummaryProvider>();
@@ -39,10 +91,11 @@ class _DoctorSummaryScreenState extends State<DoctorSummaryScreen> {
       return;
     }
 
-    // Profile will be loaded from Firestore in dashboard integration
-    // For now generating with available data
+    // Load real profile from Firestore
+    final profile = await _loadProfile();
+
     await summaryProvider.generateSummary(
-      profile: _getFallbackProfile(),
+      profile: profile,
       recentLogs: symptomProvider.logs,
       records: recordProvider.allRecords,
       userNotes: _notesController.text.trim().isEmpty
@@ -56,13 +109,7 @@ class _DoctorSummaryScreenState extends State<DoctorSummaryScreen> {
         MaterialPageRoute(builder: (_) => const DoctorSummaryResultScreen()),
       );
     }
-  }
-
-  // Fallback until profile provider is wired
-  _getFallbackProfile() {
-    // This will be replaced when we wire the profile provider
-    // in the dashboard on Day 6
-    return _MinimalProfile();
+    _notesController.clear();
   }
 
   @override
@@ -70,6 +117,15 @@ class _DoctorSummaryScreenState extends State<DoctorSummaryScreen> {
     final summaryProvider = context.watch<DoctorSummaryProvider>();
     final symptomProvider = context.watch<SymptomProvider>();
     final recordProvider = context.watch<HealthRecordProvider>();
+    final isLoading =
+        symptomProvider.status == SymptomStatus.loading ||
+        recordProvider.status == RecordStatus.loading;
+    if (isLoading) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Doctor Visit Summary')),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
 
     final hasData =
         symptomProvider.logs.isNotEmpty || recordProvider.allRecords.isNotEmpty;
@@ -148,13 +204,14 @@ class _DoctorSummaryScreenState extends State<DoctorSummaryScreen> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.1),
+                  color: const Color(0xFFFFF8E1),
                   borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFFFE082)),
                 ),
                 child: const Text(
                   '⚠️ Add symptom logs or health records to generate '
                   'a meaningful summary.',
-                  style: TextStyle(color: Colors.amber, fontSize: 13),
+                  style: TextStyle(color: Color(0xFF92610A), fontSize: 13),
                 ),
               ),
             ],
@@ -252,14 +309,4 @@ class _DataPreviewRow extends StatelessWidget {
       ),
     );
   }
-}
-
-// Temporary minimal profile — replaced when dashboard wires profile
-class _MinimalProfile {
-  final String displayName = 'User';
-  final String ageRange = 'Not specified';
-  final String lifeStage = 'General wellness';
-  final String menstrualCycleStatus = 'Not specified';
-  final List<String> knownConditions = [];
-  final List<String> currentMedications = [];
 }

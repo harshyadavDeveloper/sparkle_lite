@@ -2,6 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_date_formatter/smart_date_formatter.dart';
+import 'package:sparkle_lite/data/models/ai_insight.dart';
+import 'package:sparkle_lite/data/models/doctor_summary.dart';
+import 'package:sparkle_lite/features/ai_insight/ai_insight_provider.dart';
+import 'package:sparkle_lite/features/doctor_visit/doctor_summary_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/health_record.dart';
 import '../../data/models/symptom_log.dart';
@@ -45,6 +49,8 @@ class _TimelineScreenState extends State<TimelineScreen> {
       if (userId != null) {
         context.read<SymptomProvider>().loadLogs(userId);
         context.read<HealthRecordProvider>().loadRecords(userId);
+        context.read<AiInsightProvider>().loadInsights(userId);
+        context.read<DoctorSummaryProvider>().loadSummaries(userId);
       }
     });
   }
@@ -52,6 +58,8 @@ class _TimelineScreenState extends State<TimelineScreen> {
   List<TimelineEntry> _buildEntries(
     List<SymptomLog> logs,
     List<HealthRecord> records,
+    List<AiInsight> insights,
+    List<DoctorSummary> summaries,
   ) {
     final entries = <TimelineEntry>[];
 
@@ -82,6 +90,32 @@ class _TimelineScreenState extends State<TimelineScreen> {
       );
     }
 
+    for (final insight in insights) {
+      entries.add(
+        TimelineEntry(
+          date: insight.createdAt,
+          type: 'insight',
+          title: 'AI Health Insight',
+          subtitle: insight.possiblePattern,
+          icon: Icons.psychology_outlined,
+          color: const Color(0xFF26A69A),
+        ),
+      );
+    }
+
+    for (final summary in summaries) {
+      entries.add(
+        TimelineEntry(
+          date: summary.generatedAt,
+          type: 'doctor_summary',
+          title: 'Doctor Visit Summary',
+          subtitle: '${summary.questionsForDoctor.length} questions prepared',
+          icon: Icons.medical_services_outlined,
+          color: const Color(0xFFEF6C00),
+        ),
+      );
+    }
+
     entries.sort((a, b) => b.date.compareTo(a.date));
     return entries;
   }
@@ -90,6 +124,8 @@ class _TimelineScreenState extends State<TimelineScreen> {
   Widget build(BuildContext context) {
     final symptomProvider = context.watch<SymptomProvider>();
     final recordProvider = context.watch<HealthRecordProvider>();
+    final insightProvider = context.watch<AiInsightProvider>();
+    final doctorSummaryProvider = context.watch<DoctorSummaryProvider>();
 
     final isLoading =
         symptomProvider.status == SymptomStatus.loading ||
@@ -102,6 +138,8 @@ class _TimelineScreenState extends State<TimelineScreen> {
     final allEntries = _buildEntries(
       symptomProvider.logs,
       recordProvider.allRecords,
+      insightProvider.savedInsights,
+      doctorSummaryProvider.savedSummaries,
     );
 
     final filtered = _activeFilter == null
@@ -132,6 +170,11 @@ class _TimelineScreenState extends State<TimelineScreen> {
                   label: 'Records',
                   selected: _activeFilter == 'record',
                   onTap: () => setState(() => _activeFilter = 'record'),
+                ),
+                _FilterPill(
+                  label: 'Insights',
+                  selected: _activeFilter == 'insight',
+                  onTap: () => setState(() => _activeFilter = 'insight'),
                 ),
               ],
             ),

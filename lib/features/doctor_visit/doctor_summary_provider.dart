@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:sparkle_lite/data/repositories/doctor_summary_repository.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/models/doctor_summary.dart';
 import '../../data/models/health_record.dart';
@@ -11,6 +12,9 @@ enum DoctorSummaryStatus { initial, loading, generated, saved, error }
 
 class DoctorSummaryProvider extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final DoctorSummaryRepository _repository = DoctorSummaryRepository();
+  List<DoctorSummary> _savedSummaries = [];
+  List<DoctorSummary> get savedSummaries => _savedSummaries;
 
   DoctorSummary? _currentSummary;
   DoctorSummaryStatus _status = DoctorSummaryStatus.initial;
@@ -145,6 +149,15 @@ class DoctorSummaryProvider extends ChangeNotifier {
       _errorMessage = 'Failed to save summary.';
       notifyListeners();
       return false;
+    }
+  }
+
+  Future<void> loadSummaries(String userId) async {
+    try {
+      _savedSummaries = await _repository.getSummaries(userId);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Failed to load summaries: $e');
     }
   }
 
