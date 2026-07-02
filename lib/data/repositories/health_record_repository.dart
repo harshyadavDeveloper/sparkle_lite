@@ -10,19 +10,13 @@ class HealthRecordRepository {
   CollectionReference _recordsCollection(String userId) =>
       _firestore.collection('healthRecords').doc(userId).collection('records');
 
-  Future<String?> uploadFile(String userId, File file, String fileName) async {
-    try {
-      final ref = _storage
-          .ref()
-          .child('health_records')
-          .child(userId)
-          .child(fileName);
-      final uploadTask = await ref.putFile(file);
-      return await uploadTask.ref.getDownloadURL();
-    } catch (e) {
-      return null;
-    }
-  }
+  Future<String?> uploadFile(
+    String userId, File file, String fileName) async {
+  // Mock upload — stores filename reference instead of real URL
+  // Firebase Storage not used to avoid Blaze plan requirement
+  await Future.delayed(const Duration(milliseconds: 800));
+  return 'mock://health_records/$userId/$fileName';
+}
 
   Future<void> addRecord(HealthRecord record) async {
     await _recordsCollection(record.userId).doc(record.id).set(record.toMap());

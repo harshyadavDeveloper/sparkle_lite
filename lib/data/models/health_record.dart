@@ -7,6 +7,7 @@ class HealthRecord {
   final DateTime recordDate;
   final String? doctorName;
   final String? fileUrl;
+  final String? localFilePath;
   final String? notes;
   final DateTime createdAt;
 
@@ -18,6 +19,7 @@ class HealthRecord {
     required this.recordDate,
     this.doctorName,
     this.fileUrl,
+    this.localFilePath,
     this.notes,
     required this.createdAt,
   });
@@ -30,6 +32,7 @@ class HealthRecord {
     recordDate: DateTime.parse(map['recordDate']),
     doctorName: map['doctorName'],
     fileUrl: map['fileUrl'],
+    localFilePath: null,
     notes: map['notes'],
     createdAt: DateTime.parse(map['createdAt']),
   );

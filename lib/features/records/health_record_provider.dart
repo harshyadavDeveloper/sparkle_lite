@@ -68,6 +68,7 @@ class HealthRecordProvider extends ChangeNotifier {
         recordDate: recordDate,
         doctorName: doctorName,
         fileUrl: fileUrl,
+        localFilePath: file?.path,
         notes: notes,
         createdAt: DateTime.now(),
       );

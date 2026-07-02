@@ -53,6 +53,14 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
     if (picked != null) setState(() => _recordDate = picked);
   }
 
+  bool _isImageFile(String? fileName) {
+    if (fileName == null) return false;
+    final lower = fileName.toLowerCase();
+    return lower.endsWith('.jpg') ||
+        lower.endsWith('.jpeg') ||
+        lower.endsWith('.png');
+  }
+
   Future<void> _pickFile() async {
     final result = await FilePicker.pickFiles(
       type: FileType.custom,
@@ -271,6 +279,19 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
+              if (_selectedFile != null && _isImageFile(_selectedFileName)) ...[
+                const SizedBox(height: 12),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.file(
+                    _selectedFile!,
+                    height: 160,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ],
               const SizedBox(height: 20),
 
               // Notes (optional)
