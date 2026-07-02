@@ -28,8 +28,7 @@ class RecordDetailScreen extends StatelessWidget {
           children: [
             // Header
             Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -63,10 +62,7 @@ class RecordDetailScreen extends StatelessWidget {
               padding: EdgeInsets.only(top: 8),
               child: Text(
                 'Pinch to zoom • Drag to pan',
-                style: TextStyle(
-                  color: Colors.white54,
-                  fontSize: 11,
-                ),
+                style: TextStyle(color: Colors.white54, fontSize: 11),
               ),
             ),
 
@@ -107,9 +103,7 @@ class RecordDetailScreen extends StatelessWidget {
             _DetailRow(
               icon: Icons.category_outlined,
               label: 'Type',
-              value: record.recordType
-                  .replaceAll('_', ' ')
-                  .toUpperCase(),
+              value: record.recordType.replaceAll('_', ' ').toUpperCase(),
             ),
             _DetailRow(
               icon: Icons.calendar_today_outlined,
@@ -143,13 +137,11 @@ class RecordDetailScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border:
-                      Border.all(color: const Color(0xFFDDE3EA)),
+                  border: Border.all(color: const Color(0xFFDDE3EA)),
                 ),
                 child: Text(
                   record.notes!,
-                  style: const TextStyle(
-                      color: AppTheme.textSecondary),
+                  style: const TextStyle(color: AppTheme.textSecondary),
                 ),
               ),
             ],
@@ -184,7 +176,9 @@ class RecordDetailScreen extends StatelessWidget {
                       right: 8,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 6),
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.black54,
                           borderRadius: BorderRadius.circular(8),
@@ -192,8 +186,7 @@ class RecordDetailScreen extends StatelessWidget {
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.zoom_in,
-                                color: Colors.white, size: 14),
+                            Icon(Icons.zoom_in, color: Colors.white, size: 14),
                             SizedBox(width: 4),
                             Text(
                               'Tap to expand',
@@ -220,7 +213,8 @@ class RecordDetailScreen extends StatelessWidget {
                   color: AppTheme.primary.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                      color: AppTheme.primary.withValues(alpha: 0.2)),
+                    color: AppTheme.primary.withValues(alpha: 0.2),
+                  ),
                 ),
                 child: const Row(
                   children: [

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sparkle_lite/features/ai_insight/ai_insight_input_screen.dart';
+import 'package:sparkle_lite/features/doctor_visit/doctor_summary_screen.dart';
 import 'package:sparkle_lite/features/records/health_records_screen.dart';
 import 'package:sparkle_lite/features/records/upload_record_screen.dart';
 import 'package:sparkle_lite/features/symptom_tracker/add_symptom_screen.dart';
@@ -22,6 +24,8 @@ class AppRouter {
   static const String healthRecords = '/health-records';
   static const String uploadRecord = '/upload-record';
   static const String timeline = '/timeline';
+  static const String aiInsightInput = '/ai-insight';
+  static const String doctorSummary = '/doctor-summary';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -45,6 +49,10 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const UploadRecordScreen());
       case timeline:
         return MaterialPageRoute(builder: (_) => const TimelineScreen());
+      case aiInsightInput:
+        return MaterialPageRoute(builder: (_) => const AiInsightInputScreen());
+      case doctorSummary:
+        return MaterialPageRoute(builder: (_) => const DoctorSummaryScreen());
       default:
         return MaterialPageRoute(builder: (_) => const LoginScreen());
     }

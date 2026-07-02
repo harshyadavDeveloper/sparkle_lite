@@ -48,6 +48,18 @@ class DashboardScreen extends StatelessWidget {
               onPressed: () => Navigator.pushNamed(context, AppRouter.timeline),
               child: const Text('Timeline'),
             ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () =>
+                  Navigator.pushNamed(context, AppRouter.aiInsightInput),
+              child: const Text('AI Insight'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () =>
+                  Navigator.pushNamed(context, AppRouter.doctorSummary),
+              child: const Text('Doctor Summary'),
+            ),
           ],
         ),
       ),
