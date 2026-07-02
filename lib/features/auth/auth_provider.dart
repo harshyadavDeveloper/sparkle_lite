@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:sparkle_lite/core/utils/logger.dart';
 import '../../data/services/firebase_auth_service.dart';
 
 enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
@@ -33,8 +34,10 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       await _authService.signUp(email: email, password: password);
+      Logger.info('User signed up successfully: $email');
       return true;
     } on FirebaseAuthException catch (e) {
+      Logger.error('Error signing up user: $email');
       _status = AuthStatus.error;
       _errorMessage = _mapFirebaseError(e.code);
       notifyListeners();
@@ -49,8 +52,10 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       await _authService.signIn(email: email, password: password);
+      Logger.info('User signed in successfully: $email');
       return true;
     } on FirebaseAuthException catch (e) {
+      Logger.error('Error signing in user: $email');
       _status = AuthStatus.error;
       _errorMessage = _mapFirebaseError(e.code);
       notifyListeners();
@@ -58,11 +63,47 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> signInWithGoogle() async {
+    _status = AuthStatus.loading;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final credential = await _authService.signInWithGoogle();
+
+      if (credential == null) {
+        // User cancelled the picker
+        Logger.info('Google sign-in cancelled by user');
+        _status = AuthStatus.unauthenticated;
+        notifyListeners();
+        return false;
+      }
+
+      Logger.info('User signed in with Google: ${credential.user?.email}');
+      // _status flips to authenticated via the authStateChanges listener
+      return true;
+    } on FirebaseAuthException catch (e) {
+      Logger.error('FirebaseAuthException during Google sign-in: ${e.code}');
+      _status = AuthStatus.error;
+      _errorMessage = _mapFirebaseError(e.code);
+      notifyListeners();
+      return false;
+    } catch (e) {
+      Logger.error('Unexpected error during Google sign-in: $e');
+      _status = AuthStatus.error;
+      _errorMessage = 'Google sign-in failed. Please try again.';
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<void> signOut() async {
+    Logger.info('Signing out user');
     await _authService.signOut();
   }
 
   String _mapFirebaseError(String code) {
+    Logger.error('FirebaseAuthException code: $code');
     switch (code) {
       case 'user-not-found':
         return 'No account found with this email.';
@@ -74,6 +115,10 @@ class AuthProvider extends ChangeNotifier {
         return 'Password must be at least 6 characters.';
       case 'invalid-email':
         return 'Please enter a valid email address.';
+      case 'account-exists-with-different-credential':
+        return 'An account already exists with the same email but different sign-in credentials.';
+      case 'invalid-credential':
+        return 'The credential is malformed or has expired.';
       default:
         return 'Something went wrong. Please try again.';
     }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:sparkle_lite/core/utils/logger.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/models/health_record.dart';
 import '../../data/repositories/health_record_repository.dart';
@@ -32,6 +33,7 @@ class HealthRecordProvider extends ChangeNotifier {
 
     try {
       _records = await _repository.getRecords(userId);
+      Logger.info('Loaded ${_records.length} health records for user: $userId');
       _status = RecordStatus.loaded;
     } catch (e) {
       _status = RecordStatus.error;
@@ -75,10 +77,12 @@ class HealthRecordProvider extends ChangeNotifier {
 
       await _repository.addRecord(record);
       _records.insert(0, record);
+      Logger.info('Added new health record: ${record.toMap()}');
       _status = RecordStatus.loaded;
       notifyListeners();
       return true;
     } catch (e) {
+      Logger.error('Error adding health record: $e');
       _status = RecordStatus.error;
       _errorMessage = 'Failed to save record. Please try again.';
       notifyListeners();
@@ -90,9 +94,11 @@ class HealthRecordProvider extends ChangeNotifier {
     try {
       await _repository.deleteRecord(userId, recordId);
       _records.removeWhere((r) => r.id == recordId);
+      Logger.info('Deleted health record with ID: $recordId');
       notifyListeners();
       return true;
     } catch (e) {
+      Logger.error('Error deleting health record: $e');
       _errorMessage = 'Failed to delete record.';
       notifyListeners();
       return false;

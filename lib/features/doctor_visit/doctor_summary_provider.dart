@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:sparkle_lite/core/utils/logger.dart';
 import 'package:sparkle_lite/data/repositories/doctor_summary_repository.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/models/doctor_summary.dart';
@@ -61,7 +62,6 @@ class DoctorSummaryProvider extends ChangeNotifier {
 
       final recordTitles = records.take(5).map((r) => r.title).toList();
 
-      // Auto-generate smart doctor questions
       final questions = _generateQuestions(profile, recentLogs);
 
       _currentSummary = DoctorSummary(
@@ -80,6 +80,10 @@ class DoctorSummaryProvider extends ChangeNotifier {
         userNotes: userNotes,
         generatedAt: DateTime.now(),
       );
+      Logger.info('Generated Doctor Summary: ${_currentSummary?.toMap()}');
+      Logger.info('Questions for doctor: ${questions.join('; ')}');
+      Logger.info('Recent symptoms: ${recentSymptoms.join('; ')}');
+      Logger.info('Period history: ${periodHistory.join('; ')}');
 
       _status = DoctorSummaryStatus.generated;
     } catch (e) {
@@ -121,7 +125,6 @@ class DoctorSummaryProvider extends ChangeNotifier {
       questions.add('What steps should I take to support fertility planning?');
     }
 
-    // Always include these
     questions.addAll([
       'Are there any routine tests or screenings I should schedule?',
       'Are my current medications appropriate for my situation?',
@@ -146,6 +149,7 @@ class DoctorSummaryProvider extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
+      Logger.error('Error saving doctor summary: $e');
       _errorMessage = 'Failed to save summary.';
       notifyListeners();
       return false;
@@ -157,7 +161,7 @@ class DoctorSummaryProvider extends ChangeNotifier {
       _savedSummaries = await _repository.getSummaries(userId);
       notifyListeners();
     } catch (e) {
-      debugPrint('Failed to load summaries: $e');
+      Logger.error('Failed to load summaries: $e');
     }
   }
 

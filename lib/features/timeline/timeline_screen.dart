@@ -280,7 +280,6 @@ class _TimelineCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Timeline line + dot
           SizedBox(
             width: 32,
             child: Column(

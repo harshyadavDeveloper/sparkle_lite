@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:sparkle_lite/core/utils/logger.dart';
 import '../../data/models/ai_insight.dart';
 import '../../data/models/symptom_log.dart';
 import '../../data/repositories/ai_insight_repository.dart';
@@ -35,8 +36,10 @@ class AiInsightProvider extends ChangeNotifier {
         userId: userId,
         selectedLogs: selectedLogs,
       );
+      Logger.info('Generated AI Insight: ${_currentInsight?.toMap()}');
       _status = AiInsightStatus.generated;
     } catch (e) {
+      Logger.error('Error generating AI Insight: $e');
       _status = AiInsightStatus.error;
       _errorMessage = 'Failed to generate insight. Please try again.';
     }
@@ -48,10 +51,12 @@ class AiInsightProvider extends ChangeNotifier {
 
     try {
       await _repository.saveInsight(_currentInsight!);
+      Logger.info('Saved AI Insight: ${_currentInsight?.toMap()}');
       _status = AiInsightStatus.saved;
       notifyListeners();
       return true;
     } catch (e) {
+      Logger.error('Error saving AI Insight: $e');
       _errorMessage = 'Failed to save insight.';
       notifyListeners();
       return false;
@@ -61,9 +66,10 @@ class AiInsightProvider extends ChangeNotifier {
   Future<void> loadInsights(String userId) async {
     try {
       _savedInsights = await _repository.getInsights(userId);
+      Logger.info('Loaded insights for user $userId');
       notifyListeners();
     } catch (e) {
-      debugPrint('Failed to load insights: $e');
+      Logger.error('Error loading insights: $e');
     }
   }
 

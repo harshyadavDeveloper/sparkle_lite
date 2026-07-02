@@ -35,9 +35,7 @@ class SparkleApp extends StatelessWidget {
         title: 'Sparkle Lite',
         theme: AppTheme.lightTheme,
         debugShowCheckedModeBanner: false,
-
         onGenerateRoute: AppRouter.generateRoute,
-
         home: Consumer<AuthProvider>(
           builder: (context, auth, _) {
             if (auth.status == AuthStatus.initial) {
