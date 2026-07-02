@@ -176,6 +176,11 @@ class _TimelineScreenState extends State<TimelineScreen> {
                   selected: _activeFilter == 'insight',
                   onTap: () => setState(() => _activeFilter = 'insight'),
                 ),
+                _FilterPill(
+                  label: 'Doctor',
+                  selected: _activeFilter == 'doctor_summary',
+                  onTap: () => setState(() => _activeFilter = 'doctor_summary'),
+                ),
               ],
             ),
           ),

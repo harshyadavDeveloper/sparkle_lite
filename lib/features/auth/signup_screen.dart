@@ -159,7 +159,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
                 const Row(
                   children: [
-                    const Expanded(child: Divider()),
+                     Expanded(child: Divider()),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
