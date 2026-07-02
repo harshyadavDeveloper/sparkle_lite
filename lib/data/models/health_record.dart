@@ -32,7 +32,6 @@ class HealthRecord {
     recordDate: DateTime.parse(map['recordDate']),
     doctorName: map['doctorName'],
     fileUrl: map['fileUrl'],
-    localFilePath: null,
     notes: map['notes'],
     createdAt: DateTime.parse(map['createdAt']),
   );

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'package:sparkle_lite/core/utils/logger.dart';
 import '../../core/routing/app_router.dart';
 import '../../core/theme/app_theme.dart';
 import 'auth_provider.dart';
@@ -70,6 +72,9 @@ class _SignupScreenState extends State<SignupScreen> {
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
+                  onChanged: (value) {
+                    Logger.info('Email input changed: $value');
+                  },
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     prefixIcon: Icon(Icons.email_outlined),
@@ -151,6 +156,44 @@ class _SignupScreenState extends State<SignupScreen> {
                       : const Text('Create Account'),
                 ),
                 const SizedBox(height: 16),
+
+                const Row(
+                  children: [
+                     Expanded(child: Divider()),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        'OR',
+                        style: TextStyle(color: AppTheme.textSecondary),
+                      ),
+                    ),
+                    Expanded(child: Divider()),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                OutlinedButton.icon(
+                  onPressed: auth.status == AuthStatus.loading
+                      ? null
+                      : () async {
+                          final success = await auth.signInWithGoogle();
+                          if (success && mounted) {
+                            await Navigator.pushReplacementNamed(
+                              context,
+                              AppRouter.onboarding,
+                            );
+                          }
+                        },
+                  icon: SvgPicture.asset(
+                    'assets/icons/google_logo.svg',
+                    height: 20,
+                    width: 20,
+                  ),
+                  label: const Text('Continue with Google'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 48),
+                  ),
+                ),
+                const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

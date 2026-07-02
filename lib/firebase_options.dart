@@ -57,22 +57,28 @@ class DefaultFirebaseOptions {
     projectId: 'sparkle-lite-523e6',
     storageBucket: 'sparkle-lite-523e6.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAmB9ZkXWUYhuRNVmlC_AXOa5YjdZdOXLI',
     appId: '1:467242628130:ios:2f1fc79b7dd648ad4c867b',
     messagingSenderId: '467242628130',
     projectId: 'sparkle-lite-523e6',
     storageBucket: 'sparkle-lite-523e6.firebasestorage.app',
+    androidClientId:
+        '467242628130-n1s4tpgob9i8daajaub92hukpmd6vas8.apps.googleusercontent.com',
+    iosClientId:
+        '467242628130-houdcffifabvbd61tqniur1jqf342fmr.apps.googleusercontent.com',
     iosBundleId: 'com.example.sparkleLite',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyAmB9ZkXWUYhuRNVmlC_AXOa5YjdZdOXLI',
     appId: '1:467242628130:ios:2f1fc79b7dd648ad4c867b',
     messagingSenderId: '467242628130',
     projectId: 'sparkle-lite-523e6',
     storageBucket: 'sparkle-lite-523e6.firebasestorage.app',
+    androidClientId:
+        '467242628130-n1s4tpgob9i8daajaub92hukpmd6vas8.apps.googleusercontent.com',
+    iosClientId:
+        '467242628130-houdcffifabvbd61tqniur1jqf342fmr.apps.googleusercontent.com',
     iosBundleId: 'com.example.sparkleLite',
   );
 

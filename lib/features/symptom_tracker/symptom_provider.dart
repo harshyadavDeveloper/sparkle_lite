@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:sparkle_lite/core/utils/logger.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/models/symptom_log.dart';
 import '../../data/repositories/symptom_repository.dart';
@@ -26,7 +27,9 @@ class SymptomProvider extends ChangeNotifier {
     try {
       _logs = await _repository.getLogs(userId);
       _status = SymptomStatus.loaded;
+      Logger.info('Loaded ${_logs.length} symptom logs for user: $userId');
     } catch (e) {
+      Logger.error('Error loading symptom logs: $e');
       _status = SymptomStatus.error;
       _errorMessage = 'Failed to load symptom logs. Please try again.';
     }
@@ -60,9 +63,11 @@ class SymptomProvider extends ChangeNotifier {
 
       await _repository.addLog(log);
       _logs.insert(0, log);
+      Logger.info('Added new symptom log: ${log.toMap()}');
       notifyListeners();
       return true;
     } catch (e) {
+      Logger.error('Error adding symptom log: $e');
       _errorMessage = 'Failed to save log. Please try again.';
       notifyListeners();
       return false;
@@ -92,8 +97,10 @@ class SymptomProvider extends ChangeNotifier {
         _logs[index] = log;
         notifyListeners();
       }
+      Logger.info('Updated symptom log: ${log.toMap()}');
       return true;
     } catch (e) {
+      Logger.error('Error updating symptom log: $e');
       _errorMessage = 'Failed to update log. Please try again.';
       notifyListeners();
       return false;
@@ -104,9 +111,11 @@ class SymptomProvider extends ChangeNotifier {
     try {
       await _repository.deleteLog(userId, logId);
       _logs.removeWhere((l) => l.id == logId);
+      Logger.info('Deleted symptom log with ID: $logId');
       notifyListeners();
       return true;
     } catch (e) {
+      Logger.error('Error deleting symptom log: $e');
       _errorMessage = 'Failed to delete log. Please try again.';
       notifyListeners();
       return false;
