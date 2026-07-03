@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sparkle_lite/core/routing/app_router.dart';
 import 'package:sparkle_lite/features/ai_insight/ai_insight_provider.dart';
-import 'package:sparkle_lite/features/auth/login_screen.dart';
+import 'package:sparkle_lite/features/auth/login/login_screen.dart';
 import 'package:sparkle_lite/features/dashboard/dashboard_screen.dart';
 import 'package:sparkle_lite/features/dashboard/web_dashboard_screen.dart';
 import 'package:sparkle_lite/features/doctor_visit/doctor_summary_provider.dart';

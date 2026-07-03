@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sparkle_lite/features/ai_insight/ai_insight_input_screen.dart';
+import 'package:sparkle_lite/features/auth/login/login_screen.dart';
 import 'package:sparkle_lite/features/dashboard/web_dashboard_screen.dart';
 import 'package:sparkle_lite/features/doctor_visit/doctor_summary_screen.dart';
 import 'package:sparkle_lite/features/family/family_screen.dart';
@@ -9,8 +10,6 @@ import 'package:sparkle_lite/features/records/upload_record_screen.dart';
 import 'package:sparkle_lite/features/symptom_tracker/add_symptom_screen.dart';
 import 'package:sparkle_lite/features/symptom_tracker/symptom_history_screen.dart';
 import 'package:sparkle_lite/features/timeline/timeline_screen.dart';
-
-import '../../features/auth/login_screen.dart';
 import '../../features/auth/onboarding_screen.dart';
 import '../../features/auth/signup_screen.dart';
 import '../../features/dashboard/dashboard_screen.dart';
