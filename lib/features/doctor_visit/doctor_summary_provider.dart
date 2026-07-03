@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sparkle_lite/core/utils/logger.dart';
 import 'package:sparkle_lite/data/repositories/doctor_summary_repository.dart';
+import 'package:sparkle_lite/data/services/gemini_service.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/models/doctor_summary.dart';
 import '../../data/models/health_record.dart';
@@ -35,62 +36,135 @@ class DoctorSummaryProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 800));
-
     try {
       final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
-      final recentSymptoms = recentLogs
-          .take(5)
-          .map(
-            (l) =>
-                'Pain ${l.painLevel}/10, ${l.mood}, '
-                '${l.periodStatus.replaceAll('_', ' ')}'
-                '${l.symptoms.isNotEmpty ? ' — ${l.symptoms.join(', ')}' : ''}',
-          )
-          .toList();
+      Logger.info('DoctorSummaryProvider → calling Gemini for summary');
+      Logger.info('User notes: ${userNotes ?? 'none'}');
 
-      final periodHistory = recentLogs
-          .take(5)
-          .map(
-            (l) =>
-                '${l.date.toLocal().toString().split(' ')[0]}: '
-                '${l.periodStatus.replaceAll('_', ' ')}, '
-                'flow: ${l.flowLevel}',
-          )
-          .toList();
-
-      final recordTitles = records.take(5).map((r) => r.title).toList();
-
-      final questions = _generateQuestions(profile, recentLogs);
-
-      _currentSummary = DoctorSummary(
-        id: const Uuid().v4(),
-        userId: userId,
-        profileSnapshot:
-            '${profile.displayName}, ${profile.ageRange}, '
-            '${profile.lifeStage}, cycle: ${profile.menstrualCycleStatus}'
-            '${profile.knownConditions.isNotEmpty ? ', conditions: ${profile.knownConditions.join(', ')}' : ''}'
-            '${profile.currentMedications.isNotEmpty ? ', medications: ${profile.currentMedications.join(', ')}' : ''}',
-        recentSymptoms: recentSymptoms,
-        periodHistory: periodHistory,
-        uploadedRecordTitles: recordTitles,
-        currentMedications: profile.currentMedications,
-        questionsForDoctor: questions,
+      final response = await GeminiService.generateDoctorSummary(
+        profile: profile,
+        recentLogs: recentLogs,
+        records: records,
         userNotes: userNotes,
-        generatedAt: DateTime.now(),
       );
-      Logger.info('Generated Doctor Summary: ${_currentSummary?.toMap()}');
-      Logger.info('Questions for doctor: ${questions.join('; ')}');
-      Logger.info('Recent symptoms: ${recentSymptoms.join('; ')}');
-      Logger.info('Period history: ${periodHistory.join('; ')}');
 
-      _status = DoctorSummaryStatus.generated;
+      if (response != null) {
+        Logger.success('DoctorSummaryProvider → Gemini summary received');
+
+        // Build recent symptoms from logs for storage
+        final recentSymptoms = recentLogs
+            .take(5)
+            .map(
+              (l) =>
+                  'Pain ${l.painLevel}/10, ${l.mood}, '
+                  '${l.periodStatus.replaceAll('_', ' ')}'
+                  '${l.symptoms.isNotEmpty ? ' — ${l.symptoms.join(', ')}' : ''}',
+            )
+            .toList();
+
+        final periodHistory = recentLogs
+            .take(5)
+            .map(
+              (l) =>
+                  '${l.date.toLocal().toString().split(' ')[0]}: '
+                  '${l.periodStatus.replaceAll('_', ' ')}, '
+                  'flow: ${l.flowLevel}',
+            )
+            .toList();
+
+        // Build questions — use Gemini's specific questions
+        final geminiQuestions = List<String>.from(
+          response['questionsForDoctor'] ?? [],
+        );
+
+        // Append any extra auto-generated ones
+        final autoQuestions = _generateQuestions(profile, recentLogs);
+        final allQuestions = {...geminiQuestions, ...autoQuestions}.toList();
+
+        _currentSummary = DoctorSummary(
+          id: const Uuid().v4(),
+          userId: userId,
+          profileSnapshot:
+              response['profileSnapshot'] ??
+              '${profile.displayName}, ${profile.ageRange}, '
+                  '${profile.lifeStage}',
+          recentSymptoms: recentSymptoms,
+          periodHistory: periodHistory,
+          uploadedRecordTitles: records.take(5).map((r) => r.title).toList(),
+          currentMedications: profile.currentMedications,
+          questionsForDoctor: allQuestions,
+          userNotes: userNotes,
+          generatedAt: DateTime.now(),
+        );
+
+        _status = DoctorSummaryStatus.generated;
+      } else {
+        // Fallback to mock
+        Logger.warning(
+          'DoctorSummaryProvider → Gemini failed, using mock generation',
+        );
+
+        await _generateMockSummary(
+          profile: profile,
+          recentLogs: recentLogs,
+          records: records,
+          userNotes: userNotes,
+          userId: userId,
+        );
+      }
     } catch (e) {
+      Logger.error('DoctorSummaryProvider → exception: $e');
       _status = DoctorSummaryStatus.error;
       _errorMessage = 'Failed to generate summary. Please try again.';
     }
     notifyListeners();
+  }
+
+  Future<void> _generateMockSummary({
+    required UserProfile profile,
+    required List<SymptomLog> recentLogs,
+    required List<HealthRecord> records,
+    required String userId,
+    String? userNotes,
+  }) async {
+    final recentSymptoms = recentLogs
+        .take(5)
+        .map(
+          (l) =>
+              'Pain ${l.painLevel}/10, ${l.mood}, '
+              '${l.periodStatus.replaceAll('_', ' ')}'
+              '${l.symptoms.isNotEmpty ? ' — ${l.symptoms.join(', ')}' : ''}',
+        )
+        .toList();
+
+    final periodHistory = recentLogs
+        .take(5)
+        .map(
+          (l) =>
+              '${l.date.toLocal().toString().split(' ')[0]}: '
+              '${l.periodStatus.replaceAll('_', ' ')}, '
+              'flow: ${l.flowLevel}',
+        )
+        .toList();
+
+    _currentSummary = DoctorSummary(
+      id: const Uuid().v4(),
+      userId: userId,
+      profileSnapshot:
+          '${profile.displayName}, ${profile.ageRange}, '
+          '${profile.lifeStage}, cycle: ${profile.menstrualCycleStatus}'
+          '${profile.knownConditions.isNotEmpty ? ', conditions: ${profile.knownConditions.join(', ')}' : ''}'
+          '${profile.currentMedications.isNotEmpty ? ', medications: ${profile.currentMedications.join(', ')}' : ''}',
+      recentSymptoms: recentSymptoms,
+      periodHistory: periodHistory,
+      uploadedRecordTitles: records.take(5).map((r) => r.title).toList(),
+      currentMedications: profile.currentMedications,
+      questionsForDoctor: _generateQuestions(profile, recentLogs),
+      userNotes: userNotes,
+      generatedAt: DateTime.now(),
+    );
+    _status = DoctorSummaryStatus.generated;
   }
 
   List<String> _generateQuestions(UserProfile profile, List<SymptomLog> logs) {
