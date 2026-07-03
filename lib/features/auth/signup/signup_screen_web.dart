@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:sparkle_lite/core/routing/app_router.dart';
 import 'package:sparkle_lite/core/theme/app_theme.dart';
-import 'login_form.dart';
+import 'signup_form.dart';
 
-class LoginScreenWeb extends StatelessWidget {
-  const LoginScreenWeb({super.key});
+class SignupScreenWeb extends StatelessWidget {
+  const SignupScreenWeb({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Row(
         children: [
-          // Branding panel — hidden below 900px so it doesn't awkwardly
-          // squeeze the form on tablet-width browser windows.
           if (MediaQuery.of(context).size.width > 900)
             Expanded(
               flex: 5,
@@ -42,7 +40,7 @@ class LoginScreenWeb extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      'Your health journey\ncontinues here.',
+                      'Start the habit today.\nThank yourself tomorrow.',
                       style: Theme.of(context).textTheme.displaySmall?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -51,7 +49,7 @@ class LoginScreenWeb extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Track, reflect, and grow — one day at a time.',
+                      'Free to join. Your data stays private, always.',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Colors.white.withValues(alpha: 0.85),
                       ),
@@ -60,7 +58,6 @@ class LoginScreenWeb extends StatelessWidget {
                 ),
               ),
             ),
-          // Form panel
           Expanded(
             flex: 4,
             child: Center(
@@ -76,7 +73,7 @@ class LoginScreenWeb extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Welcome back',
+                        'Create your account',
                         style: Theme.of(context).textTheme.headlineMedium
                             ?.copyWith(
                               fontWeight: FontWeight.bold,
@@ -85,24 +82,23 @@ class LoginScreenWeb extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Sign in to pick up where you left off.',
+                        'Your information is private and secure.',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: AppTheme.textSecondary,
                         ),
                       ),
                       const SizedBox(height: 40),
-                      LoginForm(
-                        onLoginSuccess: () => Navigator.pushReplacementNamed(
+                      SignupForm(
+                        onSignupSuccess: () => Navigator.pushReplacementNamed(
                           context,
                           AppRouter.webDashboard,
                         ),
-                        onGoogleLoginSuccess: () =>
+                        onGoogleSignupSuccess: () =>
                             Navigator.pushReplacementNamed(
                               context,
-                              AppRouter.webDashboard,
+                              AppRouter.onboarding,
                             ),
-                        onSignUpTap: () =>
-                            Navigator.pushNamed(context, AppRouter.signup),
+                        onSignInTap: () => Navigator.pop(context),
                       ),
                     ],
                   ),

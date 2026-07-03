@@ -6,56 +6,57 @@ import 'package:sparkle_lite/core/utils/logger.dart';
 import 'package:sparkle_lite/features/auth/auth_provider.dart';
 
 /// Pure form content: fields, validation, submit + Google sign-in.
-/// No Scaffold, no outer padding/width constraints — the parent
-/// screen (mobile or web) decides how this is framed.
-class LoginForm extends StatefulWidget {
-  final VoidCallback onLoginSuccess;
-  final VoidCallback onGoogleLoginSuccess;
-  final VoidCallback onSignUpTap;
+/// No Scaffold/AppBar — the parent screen decides the frame.
+class SignupForm extends StatefulWidget {
+  final VoidCallback onSignupSuccess;
+  final VoidCallback onGoogleSignupSuccess;
+  final VoidCallback onSignInTap;
 
-  const LoginForm({
+  const SignupForm({
     super.key,
-    required this.onLoginSuccess,
-    required this.onGoogleLoginSuccess,
-    required this.onSignUpTap,
+    required this.onSignupSuccess,
+    required this.onGoogleSignupSuccess,
+    required this.onSignInTap,
   });
 
   @override
-  State<LoginForm> createState() => _LoginFormState();
+  State<SignupForm> createState() => _SignupFormState();
 }
 
-class _LoginFormState extends State<LoginForm> {
+class _SignupFormState extends State<SignupForm> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleLogin() async {
+  Future<void> _handleSignup() async {
     if (!_formKey.currentState!.validate()) return;
 
     final auth = context.read<AuthProvider>();
-    final success = await auth.signIn(
+    final success = await auth.signUp(
       email: _emailController.text.trim(),
       password: _passwordController.text,
     );
 
     if (success && mounted) {
-      widget.onLoginSuccess();
+      widget.onSignupSuccess();
     }
   }
 
-  Future<void> _handleGoogleLogin() async {
+  Future<void> _handleGoogleSignup() async {
     final auth = context.read<AuthProvider>();
     final success = await auth.signInWithGoogle();
     if (success && mounted) {
-      widget.onGoogleLoginSuccess();
+      widget.onGoogleSignupSuccess();
     }
   }
 
@@ -81,7 +82,7 @@ class _LoginFormState extends State<LoginForm> {
             validator: (value) {
               if (value == null || value.isEmpty) return 'Email is required';
               if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                return 'Enter a valid email address';
+                return 'Enter a valid email';
               }
               return null;
             },
@@ -105,15 +106,28 @@ class _LoginFormState extends State<LoginForm> {
             ),
             validator: (value) {
               if (value == null || value.isEmpty) return 'Password is required';
-              if (value.length < 6) {
-                return 'Password must be at least 6 characters';
+              if (value.length < 6) return 'Minimum 6 characters';
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _confirmPasswordController,
+            obscureText: _obscurePassword,
+            decoration: const InputDecoration(
+              labelText: 'Confirm Password',
+              prefixIcon: Icon(Icons.lock_outlined),
+            ),
+            validator: (value) {
+              if (value != _passwordController.text) {
+                return 'Passwords do not match';
               }
               return null;
             },
           ),
           if (auth.errorMessage != null)
             Padding(
-              padding: const EdgeInsets.only(top: 8),
+              padding: const EdgeInsets.only(top: 12),
               child: Text(
                 auth.errorMessage!,
                 style: const TextStyle(color: AppTheme.error),
@@ -123,7 +137,7 @@ class _LoginFormState extends State<LoginForm> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: isLoading ? null : _handleLogin,
+              onPressed: isLoading ? null : _handleSignup,
               child: isLoading
                   ? const SizedBox(
                       height: 20,
@@ -133,10 +147,10 @@ class _LoginFormState extends State<LoginForm> {
                         strokeWidth: 2,
                       ),
                     )
-                  : const Text('Sign In'),
+                  : const Text('Create Account'),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           const Row(
             children: [
               Expanded(child: Divider()),
@@ -152,7 +166,7 @@ class _LoginFormState extends State<LoginForm> {
           ),
           const SizedBox(height: 24),
           OutlinedButton.icon(
-            onPressed: isLoading ? null : _handleGoogleLogin,
+            onPressed: isLoading ? null : _handleGoogleSignup,
             icon: SvgPicture.asset(
               'assets/icons/google_logo.svg',
               height: 20,
@@ -167,18 +181,18 @@ class _LoginFormState extends State<LoginForm> {
               padding: const EdgeInsets.symmetric(horizontal: 12),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                "Don't have an account? ",
+                'Already have an account? ',
                 style: TextStyle(color: AppTheme.textSecondary),
               ),
               GestureDetector(
-                onTap: widget.onSignUpTap,
+                onTap: widget.onSignInTap,
                 child: const Text(
-                  'Sign Up',
+                  'Sign In',
                   style: TextStyle(
                     color: AppTheme.primary,
                     fontWeight: FontWeight.w600,
