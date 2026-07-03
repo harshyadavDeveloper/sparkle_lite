@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -38,7 +39,10 @@ class _SignupScreenState extends State<SignupScreen> {
     );
 
     if (success && mounted) {
-      await Navigator.pushReplacementNamed(context, AppRouter.onboarding);
+      await Navigator.pushReplacementNamed(
+        context,
+        kIsWeb ? AppRouter.webDashboard : AppRouter.dashboard,
+      );
     }
   }
 

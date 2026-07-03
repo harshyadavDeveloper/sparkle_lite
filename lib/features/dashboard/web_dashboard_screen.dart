@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_date_formatter/smart_date_formatter.dart';
+import 'package:sparkle_lite/core/utils/logger.dart';
+import 'package:sparkle_lite/data/models/symptom_log.dart';
 import '../../core/routing/app_router.dart';
 import '../../core/theme/app_theme.dart';
 import '../ai_insight/ai_insight_provider.dart';
@@ -48,6 +50,7 @@ class _WebDashboardScreenState extends State<WebDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Logger.info('web dashboard build');
     return Scaffold(
       body: Row(
         children: [
@@ -793,7 +796,7 @@ class _WebCard extends StatelessWidget {
 
 class _WebLogRow extends StatelessWidget {
   const _WebLogRow({required this.log});
-  final dynamic log;
+  final SymptomLog log;
 
   @override
   Widget build(BuildContext context) {
