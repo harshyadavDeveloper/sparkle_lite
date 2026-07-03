@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:sparkle_lite/core/theme/app_theme.dart';
 import 'package:sparkle_lite/core/utils/logger.dart';
+import 'package:sparkle_lite/core/widgets/app_email_field.dart';
+import 'package:sparkle_lite/core/widgets/app_password_field.dart';
+import 'package:sparkle_lite/core/widgets/auth_toggle_row.dart';
+import 'package:sparkle_lite/core/widgets/google_sign_in_button.dart';
+import 'package:sparkle_lite/core/widgets/or_divider.dart';
+import 'package:sparkle_lite/core/widgets/primary_loading_button.dart';
 import 'package:sparkle_lite/features/auth/auth_provider.dart';
 
-/// Pure form content: fields, validation, submit + Google sign-in.
-/// No Scaffold/AppBar — the parent screen decides the frame.
 class SignupForm extends StatefulWidget {
   final VoidCallback onSignupSuccess;
   final VoidCallback onGoogleSignupSuccess;
@@ -28,7 +31,6 @@ class _SignupFormState extends State<SignupForm> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -47,17 +49,13 @@ class _SignupFormState extends State<SignupForm> {
       password: _passwordController.text,
     );
 
-    if (success && mounted) {
-      widget.onSignupSuccess();
-    }
+    if (success && mounted) widget.onSignupSuccess();
   }
 
   Future<void> _handleGoogleSignup() async {
     final auth = context.read<AuthProvider>();
     final success = await auth.signInWithGoogle();
-    if (success && mounted) {
-      widget.onGoogleSignupSuccess();
-    }
+    if (success && mounted) widget.onGoogleSignupSuccess();
   }
 
   @override
@@ -71,39 +69,13 @@ class _SignupFormState extends State<SignupForm> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          TextFormField(
+          AppEmailField(
             controller: _emailController,
-            keyboardType: TextInputType.emailAddress,
             onChanged: (value) => Logger.info('Email input changed: $value'),
-            decoration: const InputDecoration(
-              labelText: 'Email',
-              prefixIcon: Icon(Icons.email_outlined),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Email is required';
-              if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                return 'Enter a valid email';
-              }
-              return null;
-            },
           ),
           const SizedBox(height: 16),
-          TextFormField(
+          AppPasswordField(
             controller: _passwordController,
-            obscureText: _obscurePassword,
-            decoration: InputDecoration(
-              labelText: 'Password',
-              prefixIcon: const Icon(Icons.lock_outlined),
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscurePassword
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                ),
-                onPressed: () =>
-                    setState(() => _obscurePassword = !_obscurePassword),
-              ),
-            ),
             validator: (value) {
               if (value == null || value.isEmpty) return 'Password is required';
               if (value.length < 6) return 'Minimum 6 characters';
@@ -111,17 +83,12 @@ class _SignupFormState extends State<SignupForm> {
             },
           ),
           const SizedBox(height: 16),
-          TextFormField(
+          AppPasswordField(
             controller: _confirmPasswordController,
-            obscureText: _obscurePassword,
-            decoration: const InputDecoration(
-              labelText: 'Confirm Password',
-              prefixIcon: Icon(Icons.lock_outlined),
-            ),
+            labelText: 'Confirm Password',
             validator: (value) {
-              if (value != _passwordController.text) {
+              if (value != _passwordController.text)
                 return 'Passwords do not match';
-              }
               return null;
             },
           ),
@@ -134,72 +101,23 @@ class _SignupFormState extends State<SignupForm> {
               ),
             ),
           const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: isLoading ? null : _handleSignup,
-              child: isLoading
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : const Text('Create Account'),
-            ),
+          PrimaryLoadingButton(
+            isLoading: isLoading,
+            onPressed: _handleSignup,
+            label: 'Create Account',
           ),
           const SizedBox(height: 16),
-          const Row(
-            children: [
-              Expanded(child: Divider()),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                child: Text(
-                  'OR',
-                  style: TextStyle(color: AppTheme.textSecondary),
-                ),
-              ),
-              Expanded(child: Divider()),
-            ],
+          const OrDivider(),
+          const SizedBox(height: 24),
+          GoogleSignInButton(
+            isLoading: isLoading,
+            onPressed: _handleGoogleSignup,
           ),
           const SizedBox(height: 24),
-          OutlinedButton.icon(
-            onPressed: isLoading ? null : _handleGoogleSignup,
-            icon: SvgPicture.asset(
-              'assets/icons/google_logo.svg',
-              height: 20,
-              width: 20,
-            ),
-            label: const Text(
-              'Continue with Google',
-              overflow: TextOverflow.ellipsis,
-            ),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 48),
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-            ),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Already have an account? ',
-                style: TextStyle(color: AppTheme.textSecondary),
-              ),
-              GestureDetector(
-                onTap: widget.onSignInTap,
-                child: const Text(
-                  'Sign In',
-                  style: TextStyle(
-                    color: AppTheme.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
+          AuthToggleRow(
+            promptText: 'Already have an account? ',
+            actionText: 'Sign In',
+            onTap: widget.onSignInTap,
           ),
         ],
       ),

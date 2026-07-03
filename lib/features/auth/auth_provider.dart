@@ -118,7 +118,7 @@ class AuthProvider extends ChangeNotifier {
       case 'account-exists-with-different-credential':
         return 'An account already exists with the same email but different sign-in credentials.';
       case 'invalid-credential':
-        return 'The credential is malformed or has expired.';
+        return 'Invalid credentials provided. Please try again.';
       default:
         return 'Something went wrong. Please try again.';
     }
