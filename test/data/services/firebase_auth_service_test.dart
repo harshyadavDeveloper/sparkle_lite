@@ -1,15 +1,27 @@
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:mockito/mockito.dart';
 import 'package:sparkle_lite/data/services/firebase_auth_service.dart';
+
+class MockGoogleSignIn extends Mock implements GoogleSignIn {
+  @override
+  Future<GoogleSignInAccount?> signOut() async => null;
+}
 
 void main() {
   group('FirebaseAuthService', () {
     late MockFirebaseAuth mockAuth;
+    late MockGoogleSignIn mockGoogleSignIn;
     late FirebaseAuthService service;
 
     setUp(() {
       mockAuth = MockFirebaseAuth();
-      service = FirebaseAuthService(auth: mockAuth);
+      mockGoogleSignIn = MockGoogleSignIn();
+      service = FirebaseAuthService(
+        auth: mockAuth,
+        googleSignIn: mockGoogleSignIn,
+      );
     });
 
     test('currentUser is null before sign in', () {

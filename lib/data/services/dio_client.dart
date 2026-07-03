@@ -1,29 +1,30 @@
 import 'package:dio/dio.dart';
 import 'package:sparkle_lite/core/utils/logger.dart';
 
-/// Centralized Dio instance with logging + retry built in.
-/// Any service (Gemini, future APIs) should use DioClient.instance
-/// instead of creating its own http/Dio client.
 class DioClient {
   DioClient._();
 
-  static final Dio instance =
-      Dio(
-          BaseOptions(
-            connectTimeout: const Duration(seconds: 15),
-            receiveTimeout: const Duration(seconds: 30),
-            sendTimeout: const Duration(seconds: 15),
-          ),
-        )
-        ..interceptors.addAll([
-          _LoggingInterceptor(),
-          _RetryInterceptor(retryableStatusCodes: [503]),
-        ]);
+  static final Dio instance = _create();
+
+  static Dio _create() {
+    final dio = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 30),
+        sendTimeout: const Duration(seconds: 15),
+      ),
+    );
+
+    dio.interceptors.addAll([
+      LoggingInterceptor(),
+      RetryInterceptor(dio, retryableStatusCodes: [503]),
+    ]);
+
+    return dio;
+  }
 }
 
-/// Logs every request/response/error using your existing Logger,
-/// so behavior matches the rest of your app's logging style.
-class _LoggingInterceptor extends Interceptor {
+class LoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     Logger.info('→ ${options.method} ${options.uri}');
@@ -54,15 +55,16 @@ class _LoggingInterceptor extends Interceptor {
   }
 }
 
-/// Retries requests on specific status codes (e.g. 503) or transient
-/// network errors (timeout, connection issues), with exponential backoff.
-/// Does NOT retry on 429 (rate limit) — retrying immediately on quota
-/// exhaustion just wastes another call.
-class _RetryInterceptor extends Interceptor {
+class RetryInterceptor extends Interceptor {
+  RetryInterceptor(
+    this.dio, {
+    required this.retryableStatusCodes,
+    this.maxRetries = 2,
+  });
+
+  final Dio dio;
   final List<int> retryableStatusCodes;
   final int maxRetries;
-
-  _RetryInterceptor({required this.retryableStatusCodes, this.maxRetries = 2});
 
   @override
   Future<void> onError(
@@ -92,7 +94,7 @@ class _RetryInterceptor extends Interceptor {
       options.extra['retryCount'] = retryCount + 1;
 
       try {
-        final response = await DioClient.instance.fetch(options);
+        final response = await dio.fetch(options);
         return handler.resolve(response);
       } on DioException catch (e) {
         return handler.next(e);
