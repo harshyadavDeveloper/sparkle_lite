@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:sparkle_lite/core/widgets/app_text_field.dart';
 import 'package:uuid/uuid.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/family_member.dart';
@@ -83,88 +84,89 @@ class _FamilyScreenState extends State<FamilyScreen> {
             24,
             MediaQuery.of(ctx).viewInsets.bottom + 24,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Add Family Member',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Add Family Member',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(
+                const SizedBox(height: 20),
+                AppTextField(
+                  controller: nameController,
                   labelText: 'Name or nickname *',
                 ),
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                initialValue: selectedRelationship,
-                decoration: const InputDecoration(labelText: 'Relationship *'),
-                items: _relationships
-                    .map((r) => DropdownMenuItem(value: r, child: Text(r)))
-                    .toList(),
-                onChanged: (v) => setModalState(() => selectedRelationship = v),
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                initialValue: selectedAgeRange,
-                decoration: const InputDecoration(labelText: 'Age range'),
-                items: _ageRanges
-                    .map((a) => DropdownMenuItem(value: a, child: Text(a)))
-                    .toList(),
-                onChanged: (v) => setModalState(() => selectedAgeRange = v!),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: notesController,
-                decoration: const InputDecoration(
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  initialValue: selectedRelationship,
+                  decoration: const InputDecoration(
+                    labelText: 'Relationship *',
+                  ),
+                  items: _relationships
+                      .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                      .toList(),
+                  onChanged: (v) =>
+                      setModalState(() => selectedRelationship = v),
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  initialValue: selectedAgeRange,
+                  decoration: const InputDecoration(labelText: 'Age range'),
+                  items: _ageRanges
+                      .map((a) => DropdownMenuItem(value: a, child: Text(a)))
+                      .toList(),
+                  onChanged: (v) => setModalState(() => selectedAgeRange = v!),
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  controller: notesController,
                   labelText: 'Notes (optional)',
+                  maxLines: 2,
                 ),
-                maxLines: 2,
-              ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-              // Privacy notice
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF8E1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFFFE082)),
+                // Privacy notice
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF8E1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFFFE082)),
+                  ),
+                  child: const Text(
+                    '⚠️ Family member records are kept completely '
+                    'separate from your personal health data.',
+                    style: TextStyle(color: Color(0xFF92610A), fontSize: 12),
+                  ),
                 ),
-                child: const Text(
-                  '⚠️ Family member records are kept completely '
-                  'separate from your personal health data.',
-                  style: TextStyle(color: Color(0xFF92610A), fontSize: 12),
-                ),
-              ),
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-              ElevatedButton(
-                onPressed: () async {
-                  if (nameController.text.trim().isEmpty ||
-                      selectedRelationship == null) {
-                    return;
-                  }
-                  await _addMember(
-                    name: nameController.text.trim(),
-                    relationship: selectedRelationship!,
-                    ageRange: selectedAgeRange,
-                    notes: notesController.text.trim().isEmpty
-                        ? null
-                        : notesController.text.trim(),
-                  );
-                  if (ctx.mounted) Navigator.pop(ctx);
-                },
-                child: const Text('Add Member'),
-              ),
-            ],
+                ElevatedButton(
+                  onPressed: () async {
+                    if (nameController.text.trim().isEmpty ||
+                        selectedRelationship == null) {
+                      return;
+                    }
+                    await _addMember(
+                      name: nameController.text.trim(),
+                      relationship: selectedRelationship!,
+                      ageRange: selectedAgeRange,
+                      notes: notesController.text.trim().isEmpty
+                          ? null
+                          : notesController.text.trim(),
+                    );
+                    if (ctx.mounted) Navigator.pop(ctx);
+                  },
+                  child: const Text('Add Member'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
