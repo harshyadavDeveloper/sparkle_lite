@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sparkle_lite/core/utils/logger.dart';
+import 'package:sparkle_lite/data/services/gemini_service.dart';
+import 'package:uuid/uuid.dart';
 import '../../data/models/ai_insight.dart';
 import '../../data/models/symptom_log.dart';
 import '../../data/repositories/ai_insight_repository.dart';
@@ -26,20 +28,46 @@ class AiInsightProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    await Future.delayed(
-      const Duration(seconds: 2),
-    ); // realistic delay(mock for the serious effects of AI processing)
-
     try {
       final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
-      _currentInsight = MockAiEngine.generateInsight(
-        userId: userId,
+
+      Logger.info('AiInsightProvider → calling Gemini for insight');
+
+      // Try real Gemini first
+      final response = await GeminiService.generateInsight(
         selectedLogs: selectedLogs,
       );
-      Logger.info('Generated AI Insight: ${_currentInsight?.toMap()}');
-      _status = AiInsightStatus.generated;
+
+      if (response != null) {
+        Logger.success('AiInsightProvider → Gemini insight received');
+
+        _currentInsight = AiInsight(
+          id: const Uuid().v4(),
+          userId: userId,
+          summary: response['summary'] ?? '',
+          possiblePattern: response['possiblePattern'] ?? '',
+          careGuidance: response['careGuidance'] ?? '',
+          doctorQuestions: List<String>.from(response['doctorQuestions'] ?? []),
+          disclaimer:
+              response['disclaimer'] ??
+              'This is not a diagnosis and does not replace medical advice.',
+          createdAt: DateTime.now(),
+        );
+
+        _status = AiInsightStatus.generated;
+      } else {
+        Logger.warning(
+          'AiInsightProvider → Gemini failed, falling back to mock',
+        );
+
+        _currentInsight = MockAiEngine.generateInsight(
+          userId: userId,
+          selectedLogs: selectedLogs,
+        );
+        _status = AiInsightStatus.generated;
+      }
     } catch (e) {
-      Logger.error('Error generating AI Insight: $e');
+      Logger.error('AiInsightProvider → exception: $e');
       _status = AiInsightStatus.error;
       _errorMessage = 'Failed to generate insight. Please try again.';
     }
