@@ -60,6 +60,13 @@ class _LoginFormState extends State<LoginForm> {
     if (success && mounted) widget.onGoogleLoginSuccess();
   }
 
+  void _goToSignUp() {
+    context.read<AuthProvider>().clearError();
+    _emailController.clear();
+    _passwordController.clear();
+    widget.onSignUpTap();
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
@@ -80,8 +87,9 @@ class _LoginFormState extends State<LoginForm> {
             controller: _passwordController,
             validator: (value) {
               if (value == null || value.isEmpty) return 'Password is required';
-              if (value.length < 6)
+              if (value.length < 6) {
                 return 'Password must be at least 6 characters';
+              }
               return null;
             },
           ),
@@ -110,7 +118,7 @@ class _LoginFormState extends State<LoginForm> {
           AuthToggleRow(
             promptText: "Don't have an account? ",
             actionText: 'Sign Up',
-            onTap: widget.onSignUpTap,
+            onTap: _goToSignUp,
           ),
         ],
       ),

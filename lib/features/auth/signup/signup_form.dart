@@ -58,6 +58,14 @@ class _SignupFormState extends State<SignupForm> {
     if (success && mounted) widget.onGoogleSignupSuccess();
   }
 
+  void _goToSignIn() {
+    context.read<AuthProvider>().clearError();
+    _emailController.clear();
+    _passwordController.clear();
+    _confirmPasswordController.clear();
+    widget.onSignInTap();
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
@@ -87,8 +95,9 @@ class _SignupFormState extends State<SignupForm> {
             controller: _confirmPasswordController,
             labelText: 'Confirm Password',
             validator: (value) {
-              if (value != _passwordController.text)
+              if (value != _passwordController.text) {
                 return 'Passwords do not match';
+              }
               return null;
             },
           ),
@@ -117,7 +126,7 @@ class _SignupFormState extends State<SignupForm> {
           AuthToggleRow(
             promptText: 'Already have an account? ',
             actionText: 'Sign In',
-            onTap: widget.onSignInTap,
+            onTap: _goToSignIn,
           ),
         ],
       ),

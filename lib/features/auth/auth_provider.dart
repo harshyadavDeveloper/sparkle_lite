@@ -123,4 +123,12 @@ class AuthProvider extends ChangeNotifier {
         return 'Something went wrong. Please try again.';
     }
   }
+
+  void clearError() {
+    _errorMessage = null;
+    if (_status == AuthStatus.error) {
+      _status = AuthStatus.unauthenticated;
+    }
+    notifyListeners();
+  }
 }
