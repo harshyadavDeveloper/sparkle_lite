@@ -20,19 +20,31 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  bool _isInitialLoading = true;
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userId = FirebaseAuth.instance.currentUser?.uid;
-      if (userId == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadDashboardData());
+  }
 
-      context.read<ProfileProvider>().loadProfile(userId);
-      context.read<SymptomProvider>().loadLogs(userId);
-      context.read<HealthRecordProvider>().loadRecords(userId);
-      context.read<AiInsightProvider>().loadInsights(userId);
-      context.read<DoctorSummaryProvider>().loadSummaries(userId);
-    });
+  Future<void> _loadDashboardData() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) {
+      setState(() => _isInitialLoading = false);
+      return;
+    }
+
+    await Future.wait([
+      context.read<ProfileProvider>().loadProfile(userId),
+      context.read<SymptomProvider>().loadLogs(userId),
+      context.read<HealthRecordProvider>().loadRecords(userId),
+      context.read<AiInsightProvider>().loadInsights(userId),
+      context.read<DoctorSummaryProvider>().loadSummaries(userId),
+    ]);
+
+    if (mounted) {
+      setState(() => _isInitialLoading = false);
+    }
   }
 
   @override
@@ -68,125 +80,128 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          final userId = FirebaseAuth.instance.currentUser?.uid;
-          if (userId == null) return;
+      body: _isInitialLoading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: _loadDashboardData,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Greeting
+                    Text(
+                      'Hello, ${profile?.displayName ?? 'there'} 👋',
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.textPrimary,
+                          ),
+                    ),
+                    if (profile != null)
+                      Text(
+                        profile.lifeStage,
+                        style: const TextStyle(color: AppTheme.textSecondary),
+                      ),
+                    const SizedBox(height: 24),
 
-          final symptomProvider = context.read<SymptomProvider>();
-          final healthRecordProvider = context.read<HealthRecordProvider>();
+                    // Stats row
+                    Row(
+                      children: [
+                        _StatCard(
+                          label: 'Logs',
+                          count: symptomProvider.logs.length,
+                          icon: Icons.favorite_border,
+                          color: AppTheme.primary,
+                        ),
+                        const SizedBox(width: 12),
+                        _StatCard(
+                          label: 'Records',
+                          count: recordProvider.allRecords.length,
+                          icon: Icons.folder_outlined,
+                          color: const Color(0xFF7B68EE),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
 
-          await symptomProvider.loadLogs(userId);
-          await healthRecordProvider.loadRecords(userId);
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Greeting
-              Text(
-                'Hello, ${profile?.displayName ?? 'there'} 👋',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
+                    // Recent symptom log
+                    if (recentLog != null) ...[
+                      const _SectionTitle(title: 'Latest Log'),
+                      const SizedBox(height: 10),
+                      _RecentLogCard(log: recentLog),
+                      const SizedBox(height: 24),
+                    ],
+
+                    // Quick actions
+                    const _SectionTitle(title: 'Quick Actions'),
+                    const SizedBox(height: 12),
+                    GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 1.6,
+                      children: [
+                        _QuickActionCard(
+                          icon: Icons.add_circle_outline,
+                          label: 'Log Symptom',
+                          color: AppTheme.primary,
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            AppRouter.symptomHistory,
+                          ),
+                        ),
+                        _QuickActionCard(
+                          icon: Icons.upload_file_outlined,
+                          label: 'Upload Record',
+                          color: const Color(0xFF7B68EE),
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            AppRouter.healthRecords,
+                          ),
+                        ),
+                        _QuickActionCard(
+                          icon: Icons.psychology_outlined,
+                          label: 'AI Insight',
+                          color: const Color(0xFF26A69A),
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            AppRouter.aiInsightInput,
+                          ),
+                        ),
+                        _QuickActionCard(
+                          icon: Icons.medical_services_outlined,
+                          label: 'Doctor Summary',
+                          color: const Color(0xFFEF6C00),
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            AppRouter.doctorSummary,
+                          ),
+                        ),
+                        _QuickActionCard(
+                          icon: Icons.timeline_outlined,
+                          label: 'Timeline',
+                          color: const Color(0xFF5C6BC0),
+                          onTap: () =>
+                              Navigator.pushNamed(context, AppRouter.timeline),
+                        ),
+                        _QuickActionCard(
+                          icon: Icons.people_outline,
+                          label: 'Family',
+                          color: const Color(0xFFEC407A),
+                          onTap: () =>
+                              Navigator.pushNamed(context, AppRouter.family),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                  ],
                 ),
               ),
-              if (profile != null)
-                Text(
-                  profile.lifeStage,
-                  style: const TextStyle(color: AppTheme.textSecondary),
-                ),
-              const SizedBox(height: 24),
-
-              // Stats row
-              Row(
-                children: [
-                  _StatCard(
-                    label: 'Logs',
-                    count: symptomProvider.logs.length,
-                    icon: Icons.favorite_border,
-                    color: AppTheme.primary,
-                  ),
-                  const SizedBox(width: 12),
-                  _StatCard(
-                    label: 'Records',
-                    count: recordProvider.allRecords.length,
-                    icon: Icons.folder_outlined,
-                    color: const Color(0xFF7B68EE),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // Recent symptom log
-              if (recentLog != null) ...[
-                const _SectionTitle(title: 'Latest Log'),
-                const SizedBox(height: 10),
-                _RecentLogCard(log: recentLog),
-                const SizedBox(height: 24),
-              ],
-
-              // Quick actions
-              const _SectionTitle(title: 'Quick Actions'),
-              const SizedBox(height: 12),
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.6,
-                children: [
-                  _QuickActionCard(
-                    icon: Icons.add_circle_outline,
-                    label: 'Log Symptom',
-                    color: AppTheme.primary,
-                    onTap: () =>
-                        Navigator.pushNamed(context, AppRouter.symptomHistory),
-                  ),
-                  _QuickActionCard(
-                    icon: Icons.upload_file_outlined,
-                    label: 'Upload Record',
-                    color: const Color(0xFF7B68EE),
-                    onTap: () =>
-                        Navigator.pushNamed(context, AppRouter.healthRecords),
-                  ),
-                  _QuickActionCard(
-                    icon: Icons.psychology_outlined,
-                    label: 'AI Insight',
-                    color: const Color(0xFF26A69A),
-                    onTap: () =>
-                        Navigator.pushNamed(context, AppRouter.aiInsightInput),
-                  ),
-                  _QuickActionCard(
-                    icon: Icons.medical_services_outlined,
-                    label: 'Doctor Summary',
-                    color: const Color(0xFFEF6C00),
-                    onTap: () =>
-                        Navigator.pushNamed(context, AppRouter.doctorSummary),
-                  ),
-                  _QuickActionCard(
-                    icon: Icons.timeline_outlined,
-                    label: 'Timeline',
-                    color: const Color(0xFF5C6BC0),
-                    onTap: () =>
-                        Navigator.pushNamed(context, AppRouter.timeline),
-                  ),
-                  _QuickActionCard(
-                    icon: Icons.people_outline,
-                    label: 'Family',
-                    color: const Color(0xFFEC407A),
-                    onTap: () => Navigator.pushNamed(context, AppRouter.family),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }

@@ -22,6 +22,7 @@ class WebDashboardScreen extends StatefulWidget {
 
 class _WebDashboardScreenState extends State<WebDashboardScreen> {
   int _selectedIndex = 0;
+  bool _isInitialLoading = true;
 
   final List<_NavItem> _navItems = [
     const _NavItem(icon: Icons.dashboard_outlined, label: 'Dashboard'),
@@ -37,35 +38,45 @@ class _WebDashboardScreenState extends State<WebDashboardScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userId = FirebaseAuth.instance.currentUser?.uid;
-      if (userId == null) return;
-      context.read<ProfileProvider>().loadProfile(userId);
-      context.read<SymptomProvider>().loadLogs(userId);
-      context.read<HealthRecordProvider>().loadRecords(userId);
-      context.read<AiInsightProvider>().loadInsights(userId);
-      context.read<DoctorSummaryProvider>().loadSummaries(userId);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _fetchDashboardData();
+      if (mounted) setState(() => _isInitialLoading = false);
     });
+  }
+
+  Future<void> _fetchDashboardData() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    await Future.wait([
+      context.read<ProfileProvider>().loadProfile(userId),
+      context.read<SymptomProvider>().loadLogs(userId),
+      context.read<HealthRecordProvider>().loadRecords(userId),
+      context.read<AiInsightProvider>().loadInsights(userId),
+      context.read<DoctorSummaryProvider>().loadSummaries(userId),
+    ]);
   }
 
   @override
   Widget build(BuildContext context) {
     Logger.info('web dashboard build');
     return Scaffold(
-      body: Row(
-        children: [
-          // Sidebar
-          _Sidebar(
-            navItems: _navItems,
-            selectedIndex: _selectedIndex,
-            onItemSelected: (i) => setState(() => _selectedIndex = i),
-          ),
-          // Vertical divider
-          Container(width: 1, color: const Color(0xFFEEF0F3)),
-          // Main content
-          Expanded(child: _buildContent()),
-        ],
-      ),
+      body: _isInitialLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Row(
+              children: [
+                // Sidebar
+                _Sidebar(
+                  navItems: _navItems,
+                  selectedIndex: _selectedIndex,
+                  onItemSelected: (i) => setState(() => _selectedIndex = i),
+                ),
+                // Vertical divider
+                Container(width: 1, color: const Color(0xFFEEF0F3)),
+                // Main content
+                Expanded(child: _buildContent()),
+              ],
+            ),
     );
   }
 
