@@ -71,10 +71,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: RefreshIndicator(
         onRefresh: () async {
           final userId = FirebaseAuth.instance.currentUser?.uid;
-          if (userId != null) {
-            await context.read<SymptomProvider>().loadLogs(userId);
-            await context.read<HealthRecordProvider>().loadRecords(userId);
-          }
+          if (userId == null) return;
+
+          final symptomProvider = context.read<SymptomProvider>();
+          final healthRecordProvider = context.read<HealthRecordProvider>();
+
+          await symptomProvider.loadLogs(userId);
+          await healthRecordProvider.loadRecords(userId);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
