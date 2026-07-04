@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sparkle_lite/core/routing/app_router.dart';
+import 'package:sparkle_lite/data/services/shared_pref_service.dart';
 import 'package:sparkle_lite/features/ai_insight/ai_insight_provider.dart';
 import 'package:sparkle_lite/features/auth/login/login_screen.dart';
 import 'package:sparkle_lite/features/dashboard/dashboard_screen.dart';
@@ -17,6 +18,7 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SharedPreferencesService.instance.init();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const SparkleApp());
 }
