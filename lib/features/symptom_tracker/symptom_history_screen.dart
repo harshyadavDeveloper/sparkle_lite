@@ -59,6 +59,20 @@ class _SymptomHistoryScreenState extends State<SymptomHistoryScreen> {
     }
   }
 
+  Future<void> _navigateToEdit(SymptomLog log) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => AddSymptomScreen(existingLog: log)),
+    );
+
+    if (!mounted) return;
+
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      await context.read<SymptomProvider>().loadLogs(userId);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<SymptomProvider>();
@@ -148,6 +162,7 @@ class _SymptomHistoryScreenState extends State<SymptomHistoryScreen> {
         return _SymptomLogCard(
           log: log,
           onDelete: () => _confirmDelete(context, log),
+          onEdit: () => _navigateToEdit(log),
         );
       },
     );
@@ -155,10 +170,15 @@ class _SymptomHistoryScreenState extends State<SymptomHistoryScreen> {
 }
 
 class _SymptomLogCard extends StatelessWidget {
-  const _SymptomLogCard({required this.log, required this.onDelete});
+  const _SymptomLogCard({
+    required this.log,
+    required this.onDelete,
+    required this.onEdit,
+  });
 
   final SymptomLog log;
   final VoidCallback onDelete;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -203,15 +223,36 @@ class _SymptomLogCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.delete_outline,
-                    color: AppTheme.error,
-                    size: 20,
-                  ),
-                  onPressed: onDelete,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.edit_outlined,
+                        color: AppTheme.primary,
+                        size: 20,
+                      ),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AddSymptomScreen(existingLog: log),
+                        ),
+                      ),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        color: AppTheme.error,
+                        size: 20,
+                      ),
+                      onPressed: onDelete,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
                 ),
               ],
             ),
