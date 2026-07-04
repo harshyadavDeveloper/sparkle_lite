@@ -3,12 +3,14 @@ name: Create Release Assets
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
 
 jobs:
   build-and-release:
     name: Build APK, Web, and Source Zip
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -17,8 +19,8 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.35.7'
-          channel: 'stable'
+          flutter-version: "3.35.7"
+          channel: "stable"
           cache: true
 
       - name: Install dependencies
