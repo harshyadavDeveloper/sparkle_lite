@@ -6,7 +6,9 @@ import '../../core/theme/app_theme.dart';
 import 'symptom_provider.dart';
 
 class AddSymptomScreen extends StatefulWidget {
-  const AddSymptomScreen({super.key});
+  final String? userIdOverride; // for testing only
+
+  const AddSymptomScreen({super.key, this.userIdOverride});
 
   @override
   State<AddSymptomScreen> createState() => _AddSymptomScreenState();
@@ -100,7 +102,8 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
 
     if (!formValid || !chipsValid) return;
 
-    final userId = FirebaseAuth.instance.currentUser?.uid;
+    final userId =
+        widget.userIdOverride ?? FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) return;
 
     final provider = context.read<SymptomProvider>();
