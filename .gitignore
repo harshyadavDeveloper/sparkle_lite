@@ -49,3 +49,5 @@ env.json
 
 # FVM Version Cache
 .fvm/
+
+.firebase/
