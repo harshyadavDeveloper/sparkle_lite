@@ -117,7 +117,8 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
 
     if (!formValid || !chipsValid) return;
 
-    final userId = FirebaseAuth.instance.currentUser?.uid;
+    final userId =
+        widget.userIdOverride ?? FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) return;
 
     final provider = context.read<SymptomProvider>();

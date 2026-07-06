@@ -32,4 +32,10 @@ class HealthRecordRepository {
         .map((doc) => HealthRecord.fromMap(doc.data() as Map<String, dynamic>))
         .toList();
   }
+
+  Future<void> updateRecord(HealthRecord record) async {
+    await _recordsCollection(
+      record.userId,
+    ).doc(record.id).update(record.toMap());
+  }
 }
