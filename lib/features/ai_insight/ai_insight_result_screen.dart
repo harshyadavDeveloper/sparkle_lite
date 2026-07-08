@@ -56,7 +56,6 @@ class AiInsightResultScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // Summary
             _InsightSection(
               icon: '📋',
               title: 'Summary',
@@ -64,7 +63,6 @@ class AiInsightResultScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Pattern
             _InsightSection(
               icon: '🔍',
               title: 'Pattern Noticed',
@@ -72,7 +70,6 @@ class AiInsightResultScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Care guidance
             _InsightSection(
               icon: '💙',
               title: 'Care Guidance',
@@ -80,7 +77,6 @@ class AiInsightResultScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Doctor questions
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -133,7 +129,6 @@ class AiInsightResultScreen extends StatelessWidget {
             ),
             const SizedBox(height: 32),
 
-            // Save to timeline
             ElevatedButton.icon(
               onPressed: provider.status == AiInsightStatus.saved
                   ? null
@@ -167,7 +162,6 @@ class AiInsightResultScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // Done button
             OutlinedButton(
               onPressed: () {
                 provider.reset();

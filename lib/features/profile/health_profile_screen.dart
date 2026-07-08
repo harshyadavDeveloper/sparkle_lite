@@ -113,7 +113,6 @@ class _HealthProfileScreenState extends State<HealthProfileScreen> {
               ),
               const SizedBox(height: 32),
 
-              // Name
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
@@ -126,7 +125,6 @@ class _HealthProfileScreenState extends State<HealthProfileScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Age Range
               DropdownButtonFormField<String>(
                 initialValue: _selectedAgeRange,
                 decoration: const InputDecoration(labelText: 'Age range'),
@@ -137,7 +135,6 @@ class _HealthProfileScreenState extends State<HealthProfileScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Life Stage
               DropdownButtonFormField<String>(
                 initialValue: _selectedLifeStage,
                 decoration: const InputDecoration(labelText: 'Life stage'),
@@ -148,7 +145,6 @@ class _HealthProfileScreenState extends State<HealthProfileScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Cycle Status
               DropdownButtonFormField<String>(
                 initialValue: _selectedCycleStatus,
                 decoration: const InputDecoration(
@@ -161,7 +157,6 @@ class _HealthProfileScreenState extends State<HealthProfileScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Known Conditions (optional)
               const Text(
                 'Known conditions (optional)',
                 style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,15 +25,13 @@ class _WebDashboardScreenState extends State<WebDashboardScreen> {
   int _selectedIndex = 0;
   bool _isInitialLoading = true;
 
-  final List<_NavItem> _navItems = [
-    const _NavItem(icon: Icons.dashboard_outlined, label: 'Dashboard'),
-    const _NavItem(icon: Icons.folder_outlined, label: 'Records'),
-    const _NavItem(icon: Icons.timeline_outlined, label: 'Timeline'),
-    const _NavItem(
-      icon: Icons.medical_services_outlined,
-      label: 'Doctor Visit',
-    ),
-    const _NavItem(icon: Icons.privacy_tip_outlined, label: 'Privacy'),
+  final List<_NavItem> _navItems = const [
+    _NavItem(icon: Icons.dashboard_outlined, label: 'Dashboard'),
+    _NavItem(icon: Icons.folder_outlined, label: 'Records'),
+    _NavItem(icon: Icons.timeline_outlined, label: 'Timeline'),
+    _NavItem(icon: Icons.psychology_outlined, label: 'AI Insights'),
+    _NavItem(icon: Icons.medical_services_outlined, label: 'Doctor Visit'),
+    _NavItem(icon: Icons.privacy_tip_outlined, label: 'Privacy'),
   ];
 
   @override
@@ -89,8 +88,10 @@ class _WebDashboardScreenState extends State<WebDashboardScreen> {
       case 2:
         return const _WebTimelinePage();
       case 3:
-        return const _WebDoctorSummaryPage();
+        return const _WebAiInsightsPage(); // 👈
       case 4:
+        return const _WebDoctorSummaryPage();
+      case 5:
         return const _WebPrivacyPage();
       default:
         return const _WebDashboardOverview();
@@ -365,6 +366,295 @@ class _WebDashboardOverview extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _WebAiInsightsPage extends StatelessWidget {
+  const _WebAiInsightsPage();
+
+  @override
+  Widget build(BuildContext context) {
+    final insights = context.watch<AiInsightProvider>().savedInsights;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'AI Health Insights',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: () =>
+                    Navigator.pushNamed(context, AppRouter.aiInsightInput),
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('New Insight'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size.zero,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'AI-generated health pattern summaries based on your symptom logs.',
+            style: TextStyle(color: AppTheme.textSecondary),
+          ),
+
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF8E1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFFFE082)),
+            ),
+            child: const Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.warning_amber_outlined,
+                  size: 16,
+                  color: Color(0xFF92610A),
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'These insights identify patterns for discussion '
+                    'with your doctor. They are not a diagnosis and '
+                    'do not replace medical advice.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF92610A),
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          if (insights.isEmpty)
+            const _WebEmptyState(
+              message:
+                  'No AI insights yet — generate one from your symptom logs',
+            )
+          else
+            ...insights.map(
+              (insight) => Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: _WebCard(
+                  title: '',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: const Color(
+                                    0xFF26A69A,
+                                  ).withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.psychology_outlined,
+                                  color: Color(0xFF26A69A),
+                                  size: 18,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              const Text(
+                                'AI Health Insight',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.textPrimary,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            insight.createdAt.format('dd MMM yyyy, hh:mm a'),
+                            style: const TextStyle(
+                              color: AppTheme.textSecondary,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      const Divider(height: 1),
+                      const SizedBox(height: 16),
+
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _WebInsightSection(
+                                  icon: '📋',
+                                  title: 'Summary',
+                                  content: insight.summary,
+                                ),
+                                const SizedBox(height: 12),
+                                _WebInsightSection(
+                                  icon: '🔍',
+                                  title: 'Pattern',
+                                  content: insight.possiblePattern,
+                                ),
+                                const SizedBox(height: 12),
+                                _WebInsightSection(
+                                  icon: '💙',
+                                  title: 'Care Guidance',
+                                  content: insight.careGuidance,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 24),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Row(
+                                  children: [
+                                    Text('🩺', style: TextStyle(fontSize: 14)),
+                                    SizedBox(width: 6),
+                                    Text(
+                                      'Questions for Your Doctor',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: AppTheme.textPrimary,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                ...insight.doctorQuestions.map(
+                                  (q) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 6),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          '•  ',
+                                          style: TextStyle(
+                                            color: Color(0xFF26A69A),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            q,
+                                            style: const TextStyle(
+                                              color: AppTheme.textSecondary,
+                                              fontSize: 13,
+                                              height: 1.4,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: Text(
+                          insight.disclaimer,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey.shade500,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WebInsightSection extends StatelessWidget {
+  const _WebInsightSection({
+    required this.icon,
+    required this.title,
+    required this.content,
+  });
+
+  final String icon;
+  final String title;
+  final String content;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(icon, style: const TextStyle(fontSize: 13)),
+            const SizedBox(width: 6),
+            Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          content,
+          style: const TextStyle(
+            color: AppTheme.textSecondary,
+            fontSize: 13,
+            height: 1.4,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -665,16 +955,105 @@ class _WebDoctorSummaryPage extends StatelessWidget {
 }
 
 // Web Privacy Page
-class _WebPrivacyPage extends StatelessWidget {
+class _WebPrivacyPage extends StatefulWidget {
   const _WebPrivacyPage();
 
   @override
+  State<_WebPrivacyPage> createState() => _WebPrivacyPageState();
+}
+
+class _WebPrivacyPageState extends State<_WebPrivacyPage> {
+  bool _hideSensitive = false;
+  bool _genericNotifications = true;
+  bool _confirmBeforeSharing = true;
+  bool _familyAccess = false;
+  bool _isLoading = true;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('privacySettings')
+          .doc(userId)
+          .get();
+
+      if (doc.exists && doc.data() != null) {
+        final data = doc.data()!;
+        setState(() {
+          _hideSensitive = data['hideSensitiveDashboardDetails'] ?? false;
+          _genericNotifications = data['useGenericNotificationText'] ?? true;
+          _confirmBeforeSharing =
+              data['requireConfirmationBeforeSharing'] ?? true;
+          _familyAccess = data['familyProfileAccessEnabled'] ?? false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Failed to load privacy settings: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _save() async {
+    setState(() => _isSaving = true);
+    final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('privacySettings')
+          .doc(userId)
+          .set({
+            'userId': userId,
+            'hideSensitiveDashboardDetails': _hideSensitive,
+            'useGenericNotificationText': _genericNotifications,
+            'requireConfirmationBeforeSharing': _confirmBeforeSharing,
+            'familyProfileAccessEnabled': _familyAccess,
+            'updatedAt': DateTime.now().toIso8601String(),
+          });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Privacy settings saved ✓'),
+            backgroundColor: AppTheme.success,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to save settings'),
+            backgroundColor: AppTheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppTheme.primary),
+      );
+    }
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header
           const Text(
             'Privacy & Sharing Settings',
             style: TextStyle(
@@ -683,30 +1062,178 @@ class _WebPrivacyPage extends StatelessWidget {
               color: AppTheme.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           const Text(
             'Control how your health data is stored and shared.',
             style: TextStyle(color: AppTheme.textSecondary),
           ),
           const SizedBox(height: 32),
-          _WebCard(
-            title: 'Privacy Settings',
-            child: Navigator.of(context).canPop()
-                ? const SizedBox.shrink()
-                : const Text(
-                    'Manage your privacy settings from the mobile app '
-                    'or use the dedicated privacy screen.',
-                    style: TextStyle(color: AppTheme.textSecondary),
-                  ),
+
+          // Two column layout — web appropriate
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Left column
+              Expanded(
+                child: Column(
+                  children: [
+                    _WebCard(
+                      title: 'Dashboard',
+                      child: _WebPrivacyToggle(
+                        title: 'Hide sensitive details',
+                        subtitle:
+                            'Hides period and symptom details '
+                            'on the main dashboard',
+                        value: _hideSensitive,
+                        onChanged: (val) =>
+                            setState(() => _hideSensitive = val),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _WebCard(
+                      title: 'Notifications',
+                      child: _WebPrivacyToggle(
+                        title: 'Use generic notification text',
+                        subtitle:
+                            'Shows "You have a health reminder" '
+                            'instead of specific health details',
+                        value: _genericNotifications,
+                        onChanged: (val) =>
+                            setState(() => _genericNotifications = val),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+
+              // Right column
+              Expanded(
+                child: Column(
+                  children: [
+                    _WebCard(
+                      title: 'Sharing',
+                      child: Column(
+                        children: [
+                          _WebPrivacyToggle(
+                            title: 'Confirm before sharing',
+                            subtitle:
+                                'Always ask for confirmation '
+                                'before sharing health records',
+                            value: _confirmBeforeSharing,
+                            onChanged: (val) =>
+                                setState(() => _confirmBeforeSharing = val),
+                          ),
+                          const Divider(),
+                          _WebPrivacyToggle(
+                            title: 'Enable family profile access',
+                            subtitle:
+                                'Allow family section to access '
+                                'shared health information',
+                            value: _familyAccess,
+                            onChanged: (val) =>
+                                setState(() => _familyAccess = val),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Privacy notice
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF8E1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFFFE082)),
+                      ),
+                      child: const Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            size: 16,
+                            color: Color(0xFF92610A),
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Generic notification text is ON by '
+                              'default. Your health details are '
+                              'never shown on your lock screen '
+                              'unless you explicitly disable this.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF92610A),
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () =>
-                Navigator.pushNamed(context, AppRouter.privacySettings),
-            child: const Text('Open Privacy Settings'),
+          const SizedBox(height: 32),
+
+          // Save button
+          SizedBox(
+            width: 200,
+            child: ElevatedButton(
+              onPressed: _isSaving ? null : _save,
+              child: _isSaving
+                  ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text('Save Settings'),
+            ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _WebPrivacyToggle extends StatelessWidget {
+  const _WebPrivacyToggle({
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String title;
+  final String subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SwitchListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.w500,
+          color: AppTheme.textPrimary,
+          fontSize: 14,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+      ),
+      value: value,
+      activeColor: AppTheme.primary,
+      onChanged: onChanged,
     );
   }
 }

@@ -29,7 +29,6 @@ class _DoctorSummaryScreenState extends State<DoctorSummaryScreen> {
       final symptomProvider = context.read<SymptomProvider>();
       final recordProvider = context.read<HealthRecordProvider>();
 
-      // Only fetch if not already loaded — avoids redundant Firestore calls
       if (!symptomProvider.hasLogs &&
           symptomProvider.status == SymptomStatus.initial) {
         symptomProvider.loadLogs(userId);
@@ -136,7 +135,6 @@ class _DoctorSummaryScreenState extends State<DoctorSummaryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Info banner
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -178,7 +176,6 @@ class _DoctorSummaryScreenState extends State<DoctorSummaryScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Data preview
             const Text(
               'What will be included',
               style: TextStyle(
@@ -217,7 +214,6 @@ class _DoctorSummaryScreenState extends State<DoctorSummaryScreen> {
 
             const SizedBox(height: 24),
 
-            // Notes
             const Text(
               'Additional notes for your doctor (optional)',
               style: TextStyle(

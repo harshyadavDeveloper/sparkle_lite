@@ -90,7 +90,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Greeting
                     Text(
                       'Hello, ${profile?.displayName ?? 'there'} 👋',
                       style: Theme.of(context).textTheme.headlineSmall
@@ -106,7 +105,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     const SizedBox(height: 24),
 
-                    // Stats row
                     Row(
                       children: [
                         _StatCard(
@@ -126,7 +124,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Recent symptom log
                     if (recentLog != null) ...[
                       const _SectionTitle(title: 'Latest Log'),
                       const SizedBox(height: 10),
@@ -134,7 +131,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       const SizedBox(height: 24),
                     ],
 
-                    // Quick actions
                     const _SectionTitle(title: 'Quick Actions'),
                     const SizedBox(height: 12),
                     GridView.count(

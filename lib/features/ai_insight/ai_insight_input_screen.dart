@@ -56,7 +56,6 @@ class _AiInsightInputScreenState extends State<AiInsightInputScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
@@ -115,7 +114,6 @@ class _AiInsightInputScreenState extends State<AiInsightInputScreen> {
             ),
           ),
 
-          // Log list
           Expanded(
             child: logs.isEmpty
                 ? const Center(
@@ -255,7 +253,6 @@ class _AiInsightInputScreenState extends State<AiInsightInputScreen> {
                   ),
           ),
 
-          // Bottom action
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(

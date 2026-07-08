@@ -127,7 +127,6 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
     bool success;
 
     if (isEditing) {
-      // Update existing log
       final updatedLog = SymptomLog(
         id: widget.existingLog!.id,
         userId: userId,
@@ -145,7 +144,6 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
       );
       success = await provider.updateLog(updatedLog);
     } else {
-      // Add new log
       success = await provider.addLog(
         userId: userId,
         date: _selectedDate,

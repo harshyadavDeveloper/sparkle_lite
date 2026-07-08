@@ -187,7 +187,6 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title
               const _SectionLabel(label: 'Report Title *'),
               TextFormField(
                 controller: _titleController,
@@ -200,7 +199,6 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Record Type
               const _SectionLabel(label: 'Record Type *'),
               Wrap(
                 spacing: 8,
@@ -227,7 +225,6 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                 ),
               const SizedBox(height: 20),
 
-              // Date
               const _SectionLabel(label: 'Record Date *'),
               InkWell(
                 onTap: _pickDate,
@@ -262,7 +259,6 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Doctor Name (optional)
               const _SectionLabel(label: 'Doctor / Clinic Name (optional)'),
               TextFormField(
                 controller: _doctorController,
@@ -272,7 +268,6 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
               ),
               const SizedBox(height: 20),
 
-              // File Upload
               const _SectionLabel(label: 'Attach File (optional)'),
               if (widget.existingRecord?.fileUrl != null &&
                   _selectedFile == null) ...[
@@ -304,7 +299,6 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                // Show existing image preview if local path available
                 if (widget.existingRecord?.localFilePath != null &&
                     _isImageFile(widget.existingRecord!.localFilePath)) ...[
                   ClipRRect(
@@ -319,7 +313,6 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                   const SizedBox(height: 8),
                 ],
 
-                // Replace file button
                 OutlinedButton.icon(
                   onPressed: _pickFile,
                   style: OutlinedButton.styleFrom(
@@ -339,7 +332,6 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                   ),
                 ),
               ] else ...[
-                // Normal file picker (new record or after picking new file)
                 InkWell(
                   onTap: _pickFile,
                   child: Container(
@@ -396,7 +388,6 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                   ),
                 ),
 
-                // New file image preview
                 if (_selectedFile != null &&
                     _isImageFile(_selectedFileName)) ...[
                   const SizedBox(height: 12),
@@ -413,7 +404,6 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
               ],
               const SizedBox(height: 20),
 
-              // Notes (optional)
               const _SectionLabel(label: 'Notes (optional)'),
               TextFormField(
                 controller: _notesController,
