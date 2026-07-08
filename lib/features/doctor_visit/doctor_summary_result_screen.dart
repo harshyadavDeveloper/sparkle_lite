@@ -120,9 +120,9 @@ class DoctorSummaryResultScreen extends StatelessWidget {
     await file.writeAsString(text);
 
     if (!context.mounted) return;
-    await Share.shareXFiles([
-      XFile(file.path),
-    ], subject: 'Doctor Visit Summary');
+    await SharePlus.instance.share(
+      ShareParams(files: [XFile(file.path)], subject: 'Doctor Visit Summary'),
+    );
   }
 
   @override
