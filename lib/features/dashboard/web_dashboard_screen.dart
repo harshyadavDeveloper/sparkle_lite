@@ -65,7 +65,9 @@ class _WebDashboardScreenState extends State<WebDashboardScreen> {
     return Scaffold(
       backgroundColor: context.bg,
       body: _isInitialLoading
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppTheme.primary),
+            )
           : Row(
               children: [
                 // Sidebar
