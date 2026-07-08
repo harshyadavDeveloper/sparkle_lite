@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:sparkle_lite/core/routing/app_router.dart';
+import 'package:sparkle_lite/data/services/shared_pref_service.dart';
+import '../../core/constants/preference_keys.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/privacy_settings.dart';
 
@@ -12,6 +15,8 @@ class PrivacySettingsScreen extends StatefulWidget {
 }
 
 class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
+  final _storage = SharedPreferencesService.instance;
+
   PrivacySettings _settings = PrivacySettings(
     userId: '',
     updatedAt: DateTime.now(),
@@ -27,29 +32,73 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
 
   Future<void> _loadSettings() async {
     final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+
+    final hasLocalCache = _storage.getString('privacy.cached') == 'true';
+
+    if (hasLocalCache) {
+      setState(() {
+        _settings = PrivacySettings(
+          userId: userId,
+          hideSensitiveDashboardDetails: _storage.getBool(
+            PreferenceKeys.hideSensitiveDashboardDetails,
+          ),
+          useGenericNotificationText: _storage.getBool(
+            PreferenceKeys.useGenericNotificationText,
+          ),
+          requireConfirmationBeforeSharing: _storage.getBool(
+            PreferenceKeys.requireConfirmationBeforeSharing,
+          ),
+          familyProfileAccessEnabled: _storage.getBool(
+            PreferenceKeys.familyProfileAccessEnabled,
+          ),
+          updatedAt: DateTime.now(),
+        );
+        _isLoading = false;
+      });
+      return;
+    }
+
     try {
       final doc = await FirebaseFirestore.instance
           .collection('privacySettings')
           .doc(userId)
           .get();
 
-      if (doc.exists && doc.data() != null) {
-        setState(() {
-          _settings = PrivacySettings.fromMap(doc.data()!);
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _settings = PrivacySettings(
-            userId: userId,
-            updatedAt: DateTime.now(),
-          );
-          _isLoading = false;
-        });
-      }
+      final settings = (doc.exists && doc.data() != null)
+          ? PrivacySettings.fromMap(doc.data()!)
+          : PrivacySettings(userId: userId, updatedAt: DateTime.now());
+
+      setState(() {
+        _settings = settings;
+        _isLoading = false;
+      });
     } catch (e) {
       setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _cacheLocally(PrivacySettings settings) async {
+    await _storage.setBool(
+      PreferenceKeys.hideSensitiveDashboardDetails,
+      settings.hideSensitiveDashboardDetails,
+    );
+    await _storage.setBool(
+      PreferenceKeys.useGenericNotificationText,
+      settings.useGenericNotificationText,
+    );
+    await _storage.setBool(
+      PreferenceKeys.requireConfirmationBeforeSharing,
+      settings.requireConfirmationBeforeSharing,
+    );
+    await _storage.setBool(
+      PreferenceKeys.familyProfileAccessEnabled,
+      settings.familyProfileAccessEnabled,
+    );
+    await _storage.setString('privacy.cached', 'true');
+  }
+
+  void _updateSetting(PrivacySettings updated) {
+    setState(() => _settings = updated);
   }
 
   Future<void> _saveSettings() async {
@@ -71,6 +120,8 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
           .collection('privacySettings')
           .doc(userId)
           .set(updated.toMap());
+
+      await _cacheLocally(updated);
 
       setState(() {
         _settings = updated;
@@ -113,7 +164,6 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Info banner
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -143,8 +193,8 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                   'Hides period status and symptom details on the '
                   'main dashboard',
               value: _settings.hideSensitiveDashboardDetails,
-              onChanged: (val) => setState(
-                () => _settings = PrivacySettings(
+              onChanged: (val) => _updateSetting(
+                PrivacySettings(
                   userId: _settings.userId,
                   hideSensitiveDashboardDetails: val,
                   useGenericNotificationText:
@@ -160,25 +210,20 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
             const Divider(),
 
             const _SectionHeader(title: 'Notifications'),
-            _PrivacyToggle(
-              title: 'Use generic notification text',
-              subtitle:
-                  'Shows "You have a health reminder" instead of '
-                  'specific health details',
-              value: _settings.useGenericNotificationText,
-              onChanged: (val) => setState(
-                () => _settings = PrivacySettings(
-                  userId: _settings.userId,
-                  hideSensitiveDashboardDetails:
-                      _settings.hideSensitiveDashboardDetails,
-                  useGenericNotificationText: val,
-                  requireConfirmationBeforeSharing:
-                      _settings.requireConfirmationBeforeSharing,
-                  familyProfileAccessEnabled:
-                      _settings.familyProfileAccessEnabled,
-                  updatedAt: DateTime.now(),
-                ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(
+                Icons.notifications_outlined,
+                color: AppTheme.primary,
               ),
+              title: const Text('Notification preferences'),
+              subtitle: const Text('Manage reminders and notification privacy'),
+              trailing: const Icon(
+                Icons.chevron_right,
+                color: AppTheme.textSecondary,
+              ),
+              onTap: () =>
+                  Navigator.pushNamed(context, AppRouter.notificationSettings),
             ),
             const Divider(),
 
@@ -189,8 +234,8 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                   'Always ask for confirmation before sharing any '
                   'health records',
               value: _settings.requireConfirmationBeforeSharing,
-              onChanged: (val) => setState(
-                () => _settings = PrivacySettings(
+              onChanged: (val) => _updateSetting(
+                PrivacySettings(
                   userId: _settings.userId,
                   hideSensitiveDashboardDetails:
                       _settings.hideSensitiveDashboardDetails,
@@ -209,8 +254,8 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                   'Allow family members section to access shared '
                   'health information',
               value: _settings.familyProfileAccessEnabled,
-              onChanged: (val) => setState(
-                () => _settings = PrivacySettings(
+              onChanged: (val) => _updateSetting(
+                PrivacySettings(
                   userId: _settings.userId,
                   hideSensitiveDashboardDetails:
                       _settings.hideSensitiveDashboardDetails,

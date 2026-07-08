@@ -78,6 +78,22 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
     }
   }
 
+  Future<void> _navigateToEdit(HealthRecord record) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => UploadRecordScreen(existingRecord: record),
+      ),
+    );
+
+    if (!mounted) return;
+
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      await context.read<HealthRecordProvider>().loadRecords(userId);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<HealthRecordProvider>();
@@ -213,6 +229,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
               builder: (_) => RecordDetailScreen(record: record),
             ),
           ),
+          onEdit: () => _navigateToEdit(record),
         );
       },
     );
@@ -226,6 +243,7 @@ class _RecordCard extends StatelessWidget {
     required this.typeLabel,
     required this.onDelete,
     required this.onTap,
+    required this.onEdit,
   });
 
   final HealthRecord record;
@@ -233,6 +251,7 @@ class _RecordCard extends StatelessWidget {
   final String typeLabel;
   final VoidCallback onDelete;
   final VoidCallback onTap;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -295,13 +314,31 @@ class _RecordCard extends StatelessWidget {
             ),
           ],
         ),
-        trailing: IconButton(
-          icon: const Icon(
-            Icons.delete_outline,
-            color: AppTheme.error,
-            size: 20,
-          ),
-          onPressed: onDelete,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(
+                Icons.edit_outlined,
+                color: AppTheme.primary,
+                size: 20,
+              ),
+              onPressed: onEdit,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+            const SizedBox(width: 4),
+            IconButton(
+              icon: const Icon(
+                Icons.delete_outline,
+                color: AppTheme.error,
+                size: 20,
+              ),
+              onPressed: onDelete,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+          ],
         ),
       ),
     );

@@ -1,6 +1,6 @@
 {
-    "name": "sparkle_lite",
-    "short_name": "sparkle_lite",
+    "name": "Sparkle",
+    "short_name": "Sparkle",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

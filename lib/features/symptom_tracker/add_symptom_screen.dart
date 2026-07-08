@@ -2,13 +2,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_date_formatter/smart_date_formatter.dart';
+import 'package:sparkle_lite/data/models/symptom_log.dart';
 import '../../core/theme/app_theme.dart';
 import 'symptom_provider.dart';
 
 class AddSymptomScreen extends StatefulWidget {
   final String? userIdOverride; // for testing only
+  final SymptomLog? existingLog;
 
-  const AddSymptomScreen({super.key, this.userIdOverride});
+  const AddSymptomScreen({super.key, this.userIdOverride, this.existingLog});
 
   @override
   State<AddSymptomScreen> createState() => _AddSymptomScreenState();
@@ -66,6 +68,21 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
   };
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.existingLog != null) {
+      final log = widget.existingLog!;
+      _selectedDate = log.date;
+      _periodStatus = log.periodStatus;
+      _flowLevel = log.flowLevel;
+      _painLevel = log.painLevel;
+      _mood = log.mood;
+      _selectedSymptoms.addAll(log.symptoms);
+      _notesController.text = log.notes ?? '';
+    }
+  }
+
+  @override
   void dispose() {
     _notesController.dispose();
     super.dispose();
@@ -82,7 +99,6 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
   }
 
   Future<void> _saveLog() async {
-    // Manual validation for chip selections
     setState(() {
       _periodStatusError = _periodStatus == null
           ? 'Please select a period status'
@@ -93,7 +109,6 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
       _moodError = _mood == null ? 'Please select a mood' : null;
     });
 
-    // Check form fields + chip validations together
     final formValid = _formKey.currentState!.validate();
     final chipsValid =
         _periodStatusError == null &&
@@ -107,25 +122,52 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
     if (userId == null) return;
 
     final provider = context.read<SymptomProvider>();
-    final success = await provider.addLog(
-      userId: userId,
-      date: _selectedDate,
-      periodStatus: _periodStatus!,
-      flowLevel: _flowLevel!,
-      painLevel: _painLevel,
-      mood: _mood!,
-      symptoms: _selectedSymptoms,
-      notes: _notesController.text.trim().isEmpty
-          ? null
-          : _notesController.text.trim(),
-    );
+    final isEditing = widget.existingLog != null;
+
+    bool success;
+
+    if (isEditing) {
+      // Update existing log
+      final updatedLog = SymptomLog(
+        id: widget.existingLog!.id,
+        userId: userId,
+        date: _selectedDate,
+        periodStatus: _periodStatus!,
+        flowLevel: _flowLevel!,
+        painLevel: _painLevel,
+        mood: _mood!,
+        symptoms: _selectedSymptoms,
+        notes: _notesController.text.trim().isEmpty
+            ? null
+            : _notesController.text.trim(),
+        createdAt: widget.existingLog!.createdAt,
+        updatedAt: DateTime.now(),
+      );
+      success = await provider.updateLog(updatedLog);
+    } else {
+      // Add new log
+      success = await provider.addLog(
+        userId: userId,
+        date: _selectedDate,
+        periodStatus: _periodStatus!,
+        flowLevel: _flowLevel!,
+        painLevel: _painLevel,
+        mood: _mood!,
+        symptoms: _selectedSymptoms,
+        notes: _notesController.text.trim().isEmpty
+            ? null
+            : _notesController.text.trim(),
+      );
+    }
 
     if (mounted) {
       if (success) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Symptom log saved ✓'),
+          SnackBar(
+            content: Text(
+              isEditing ? 'Symptom log updated ✓' : 'Symptom log saved ✓',
+            ),
             backgroundColor: AppTheme.success,
           ),
         );
@@ -146,7 +188,11 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
         context.watch<SymptomProvider>().status == SymptomStatus.loading;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Log Symptoms')),
+      appBar: AppBar(
+        title: Text(
+          widget.existingLog != null ? 'Edit Symptom Log' : 'Log Symptoms',
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -326,7 +372,9 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
                           strokeWidth: 2,
                         ),
                       )
-                    : const Text('Save Log'),
+                    : Text(
+                        widget.existingLog != null ? 'Update Log' : 'Save Log',
+                      ),
               ),
               const SizedBox(height: 24),
             ],

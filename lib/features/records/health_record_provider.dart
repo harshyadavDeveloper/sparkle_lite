@@ -105,6 +105,63 @@ class HealthRecordProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> updateRecord({
+    required String userId,
+    required String recordId,
+    required String title,
+    required String recordType,
+    required DateTime recordDate,
+    String? doctorName,
+    String? notes,
+    String? existingFileUrl,
+    String? existingLocalPath,
+    File? newFile,
+  }) async {
+    _status = RecordStatus.uploading;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      String? fileUrl = existingFileUrl;
+      String? localFilePath = existingLocalPath;
+
+      if (newFile != null) {
+        final fileName = '${_uuid.v4()}_${newFile.path.split('/').last}';
+        fileUrl = await _repository.uploadFile(userId, newFile, fileName);
+        localFilePath = newFile.path;
+      }
+
+      final updated = HealthRecord(
+        id: recordId,
+        userId: userId,
+        title: title,
+        recordType: recordType,
+        recordDate: recordDate,
+        doctorName: doctorName,
+        fileUrl: fileUrl,
+        localFilePath: localFilePath,
+        notes: notes,
+        createdAt: DateTime.now(),
+      );
+
+      await _repository.updateRecord(updated);
+
+      final index = _records.indexWhere((r) => r.id == recordId);
+      if (index != -1) {
+        _records[index] = updated;
+      }
+
+      _status = RecordStatus.loaded;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _status = RecordStatus.error;
+      _errorMessage = 'Failed to update record. Please try again.';
+      notifyListeners();
+      return false;
+    }
+  }
+
   void setFilter(String? type) {
     _activeFilter = type;
     notifyListeners();

@@ -5,6 +5,7 @@ import 'package:sparkle_lite/features/auth/signup/signup_screen.dart';
 import 'package:sparkle_lite/features/dashboard/web_dashboard_screen.dart';
 import 'package:sparkle_lite/features/doctor_visit/doctor_summary_screen.dart';
 import 'package:sparkle_lite/features/family/family_screen.dart';
+import 'package:sparkle_lite/features/privacy/notification_preferences_screen.dart';
 import 'package:sparkle_lite/features/privacy/privacy_settings_screen.dart';
 import 'package:sparkle_lite/features/records/health_records_screen.dart';
 import 'package:sparkle_lite/features/records/upload_record_screen.dart';
@@ -65,6 +66,10 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const FamilyScreen());
       case webDashboard:
         return MaterialPageRoute(builder: (_) => const WebDashboardScreen());
+      case notificationSettings:
+        return MaterialPageRoute(
+          builder: (_) => const NotificationPreferencesScreen(),
+        );
       default:
         return MaterialPageRoute(builder: (_) => const LoginScreen());
     }
