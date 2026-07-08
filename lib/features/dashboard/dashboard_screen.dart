@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_date_formatter/smart_date_formatter.dart';
+import 'package:sparkle_lite/core/theme/theme_provider.dart';
 import '../../core/routing/app_router.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/symptom_log.dart';
@@ -62,6 +63,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: const Text('Sparkle'),
         actions: [
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, _) => IconButton(
+              icon: Icon(
+                themeProvider.isDarkMode
+                    ? Icons.light_mode_outlined
+                    : Icons.dark_mode_outlined,
+              ),
+              tooltip: 'Toggle theme',
+              onPressed: () => themeProvider.toggleTheme(),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.privacy_tip_outlined),
             tooltip: 'Privacy',

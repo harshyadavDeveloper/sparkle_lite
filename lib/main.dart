@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sparkle_lite/core/routing/app_router.dart';
+import 'package:sparkle_lite/core/theme/theme_provider.dart';
 import 'package:sparkle_lite/data/services/shared_pref_service.dart';
 import 'package:sparkle_lite/features/ai_insight/ai_insight_provider.dart';
 import 'package:sparkle_lite/features/auth/login/login_screen.dart';
@@ -30,6 +31,7 @@ class SparkleApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => SymptomProvider()),
         ChangeNotifierProvider(create: (_) => HealthRecordProvider()),
@@ -37,25 +39,29 @@ class SparkleApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => DoctorSummaryProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
       ],
-      child: MaterialApp(
-        title: 'Sparkle Lite',
-        theme: AppTheme.lightTheme,
-        debugShowCheckedModeBanner: false,
-        onGenerateRoute: AppRouter.generateRoute,
-        home: Consumer<AuthProvider>(
-          builder: (context, auth, _) {
-            if (auth.status == AuthStatus.initial) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            }
-            if (auth.isAuthenticated) {
-              return kIsWeb
-                  ? const WebDashboardScreen()
-                  : const DashboardScreen();
-            }
-            return const LoginScreen();
-          },
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) => MaterialApp(
+          title: 'Sparkle Lite',
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeProvider.themeMode,
+          debugShowCheckedModeBanner: false,
+          onGenerateRoute: AppRouter.generateRoute,
+          home: Consumer<AuthProvider>(
+            builder: (context, auth, _) {
+              if (auth.status == AuthStatus.initial) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
+              if (auth.isAuthenticated) {
+                return kIsWeb
+                    ? const WebDashboardScreen()
+                    : const DashboardScreen();
+              }
+              return const LoginScreen();
+            },
+          ),
         ),
       ),
     );
