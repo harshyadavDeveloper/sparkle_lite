@@ -91,7 +91,6 @@ class _DoctorSummaryScreenState extends State<DoctorSummaryScreen> {
       return;
     }
 
-    // Load real profile from Firestore
     final profile = await _loadProfile();
 
     await summaryProvider.generateSummary(

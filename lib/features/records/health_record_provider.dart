@@ -125,7 +125,6 @@ class HealthRecordProvider extends ChangeNotifier {
       String? fileUrl = existingFileUrl;
       String? localFilePath = existingLocalPath;
 
-      // Only upload if user picked a new file
       if (newFile != null) {
         final fileName = '${_uuid.v4()}_${newFile.path.split('/').last}';
         fileUrl = await _repository.uploadFile(userId, newFile, fileName);

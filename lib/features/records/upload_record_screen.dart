@@ -52,8 +52,6 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
       _notesController.text = record.notes ?? '';
       _recordType = record.recordType;
       _recordDate = record.recordDate;
-      // file is not pre-filled — user must re-attach if they want
-      // to change it. Existing fileUrl is preserved if no new file picked.
     }
   }
 
