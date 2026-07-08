@@ -50,10 +50,13 @@ class _AiInsightInputScreenState extends State<AiInsightInputScreen> {
     final symptomProvider = context.watch<SymptomProvider>();
     final aiProvider = context.watch<AiInsightProvider>();
     final logs = symptomProvider.logs;
+      final isGenerating = aiProvider.status == AiInsightStatus.loading;
 
     return Scaffold(
       appBar: AppBar(title: const Text('AI Health Insight')),
-      body: Column(
+      body: isGenerating
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
