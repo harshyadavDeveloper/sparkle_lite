@@ -1232,7 +1232,7 @@ class _WebPrivacyToggle extends StatelessWidget {
         style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
       ),
       value: value,
-      activeColor: AppTheme.primary,
+      activeThumbColor: AppTheme.primary,
       onChanged: onChanged,
     );
   }
