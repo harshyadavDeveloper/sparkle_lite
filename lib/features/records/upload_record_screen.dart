@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_date_formatter/smart_date_formatter.dart';
@@ -35,6 +37,7 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
   DateTime _recordDate = DateTime.now();
   File? _selectedFile;
   String? _selectedFileName;
+  Uint8List? _selectedFileBytes;
 
   final List<Map<String, String>> _recordTypes = [
     {'value': 'lab_report', 'label': 'Lab Report'},
@@ -88,12 +91,17 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
     final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+      withData: true,
     );
 
-    if (result != null && result.files.single.path != null) {
+    if (result != null) {
+      final picked = result.files.single;
       setState(() {
-        _selectedFile = File(result.files.single.path!);
-        _selectedFileName = result.files.single.name;
+        _selectedFileName = picked.name;
+        _selectedFileBytes = picked.bytes;
+        _selectedFile = (!kIsWeb && picked.path != null)
+            ? File(picked.path!)
+            : null;
       });
     }
   }
@@ -318,12 +326,25 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                if (widget.existingRecord?.localFilePath != null &&
+                if (!kIsWeb &&
+                    widget.existingRecord?.localFilePath != null &&
                     _isImageFile(widget.existingRecord!.localFilePath)) ...[
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Image.file(
                       File(widget.existingRecord!.localFilePath!),
+                      height: 120,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ] else if (widget.existingRecord?.fileUrl != null &&
+                    _isImageFile(widget.existingRecord!.fileUrl)) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      widget.existingRecord!.fileUrl!,
                       height: 120,
                       width: double.infinity,
                       fit: BoxFit.cover,
@@ -412,12 +433,21 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                   const SizedBox(height: 12),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: Image.file(
-                      _selectedFile!,
-                      height: 160,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
+                    child: kIsWeb && _selectedFileBytes != null
+                        ? Image.memory(
+                            _selectedFileBytes!,
+                            height: 160,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          )
+                        : (!kIsWeb && _selectedFile != null
+                              ? Image.file(
+                                  _selectedFile!,
+                                  height: 160,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                )
+                              : const SizedBox.shrink()),
                   ),
                 ],
               ],
