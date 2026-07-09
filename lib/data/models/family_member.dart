@@ -5,6 +5,11 @@ class FamilyMember {
   final String relationship;
   final String ageRange;
   final String? notes;
+  final List<String> conditions;
+  final List<String> medications;
+  final String? doctorName;
+  final String? doctorContact;
+  final String? bloodGroup;
   final DateTime createdAt;
 
   FamilyMember({
@@ -14,6 +19,11 @@ class FamilyMember {
     required this.relationship,
     required this.ageRange,
     this.notes,
+    this.conditions = const [],
+    this.medications = const [],
+    this.doctorName,
+    this.doctorContact,
+    this.bloodGroup,
     required this.createdAt,
   });
 
@@ -24,6 +34,11 @@ class FamilyMember {
     relationship: map['relationship'] ?? '',
     ageRange: map['ageRange'] ?? '',
     notes: map['notes'],
+    conditions: List<String>.from(map['conditions'] ?? []),
+    medications: List<String>.from(map['medications'] ?? []),
+    doctorName: map['doctorName'],
+    doctorContact: map['doctorContact'],
+    bloodGroup: map['bloodGroup'],
     createdAt: DateTime.parse(map['createdAt']),
   );
 
@@ -34,6 +49,11 @@ class FamilyMember {
     'relationship': relationship,
     'ageRange': ageRange,
     'notes': notes,
+    'conditions': conditions,
+    'medications': medications,
+    'doctorName': doctorName,
+    'doctorContact': doctorContact,
+    'bloodGroup': bloodGroup,
     'createdAt': createdAt.toIso8601String(),
   };
 }

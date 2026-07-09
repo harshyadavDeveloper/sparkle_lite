@@ -6,6 +6,8 @@ import 'package:sparkle_lite/data/models/ai_insight.dart';
 import 'package:sparkle_lite/data/models/doctor_summary.dart';
 import 'package:sparkle_lite/features/ai_insight/ai_insight_provider.dart';
 import 'package:sparkle_lite/features/doctor_visit/doctor_summary_provider.dart';
+
+import '../../core/theme/app_colors_ext.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/health_record.dart';
 import '../../data/models/symptom_log.dart';
@@ -147,6 +149,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
         : allEntries.where((e) => e.type == _activeFilter).toList();
 
     return Scaffold(
+      backgroundColor: context.bg,
       appBar: AppBar(title: const Text('Health Timeline')),
       body: Column(
         children: [
@@ -216,9 +219,9 @@ class _TimelineScreenState extends State<TimelineScreen> {
           children: [
             const Icon(Icons.error_outline, size: 48, color: AppTheme.error),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Failed to load timeline',
-              style: TextStyle(color: AppTheme.textSecondary),
+              style: TextStyle(color: context.textSecondary),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
@@ -237,24 +240,24 @@ class _TimelineScreenState extends State<TimelineScreen> {
     }
 
     if (entries.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('📋', style: TextStyle(fontSize: 64)),
-            SizedBox(height: 16),
+            const Text('📋', style: TextStyle(fontSize: 64)),
+            const SizedBox(height: 16),
             Text(
               'Your timeline is empty',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary,
+                color: context.textPrimary,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Logs and records will appear here',
-              style: TextStyle(color: AppTheme.textSecondary),
+              style: TextStyle(color: context.textSecondary),
             ),
           ],
         ),
@@ -302,7 +305,9 @@ class _TimelineCard extends StatelessWidget {
                   Expanded(
                     child: Container(
                       width: 2,
-                      color: entry.color.withValues(alpha: 0.2),
+                      color: entry.color.withValues(
+                        alpha: context.isDarkMode ? 0.35 : 0.2,
+                      ),
                     ),
                   ),
               ],
@@ -315,16 +320,18 @@ class _TimelineCard extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.card,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFEEF0F3)),
+                border: Border.all(color: context.border),
               ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: entry.color.withValues(alpha: 0.1),
+                      color: entry.color.withValues(
+                        alpha: context.isDarkMode ? 0.2 : 0.1,
+                      ),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(entry.icon, color: entry.color, size: 18),
@@ -336,15 +343,15 @@ class _TimelineCard extends StatelessWidget {
                       children: [
                         Text(
                           entry.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.textPrimary,
+                            color: context.textPrimary,
                           ),
                         ),
                         Text(
                           entry.subtitle,
-                          style: const TextStyle(
-                            color: AppTheme.textSecondary,
+                          style: TextStyle(
+                            color: context.textSecondary,
                             fontSize: 12,
                           ),
                         ),
@@ -356,18 +363,18 @@ class _TimelineCard extends StatelessWidget {
                     children: [
                       Text(
                         entry.date.calendar,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          color: AppTheme.textSecondary,
+                          color: context.textSecondary,
                         ),
                       ),
                       Tooltip(
                         message: entry.date.format('dd MMM yyyy'),
                         triggerMode: TooltipTriggerMode.tap,
-                        child: const Icon(
+                        child: Icon(
                           Icons.info_outline,
                           size: 12,
-                          color: AppTheme.textSecondary,
+                          color: context.textSecondary,
                         ),
                       ),
                     ],
@@ -402,16 +409,16 @@ class _FilterPill extends StatelessWidget {
         margin: const EdgeInsets.only(right: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? AppTheme.primary : Colors.white,
+          color: selected ? AppTheme.primary : context.card,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: selected ? AppTheme.primary : const Color(0xFFDDE3EA),
+            color: selected ? AppTheme.primary : context.border,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: selected ? Colors.white : AppTheme.textSecondary,
+            color: selected ? Colors.white : context.textSecondary,
             fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
             fontSize: 13,
           ),

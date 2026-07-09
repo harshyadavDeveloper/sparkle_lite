@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sparkle_lite/core/utils/logger.dart';
 import 'package:sparkle_lite/data/models/user_profile.dart';
 import '../../core/theme/app_theme.dart';
 import '../records/health_record_provider.dart';
@@ -61,7 +62,7 @@ class _DoctorSummaryScreenState extends State<DoctorSummaryScreen> {
         return UserProfile.fromMap(doc.data()!);
       }
     } catch (e) {
-      debugPrint('Profile load failed: $e');
+      Logger.error('Profile load failed: $e');
     }
 
     return UserProfile(

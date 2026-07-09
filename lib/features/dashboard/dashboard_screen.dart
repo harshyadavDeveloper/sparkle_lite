@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_date_formatter/smart_date_formatter.dart';
 import 'package:sparkle_lite/core/theme/theme_provider.dart';
+import 'package:sparkle_lite/features/privacy/privacy_provider.dart';
 
 import '../../core/routing/app_router.dart';
 import '../../core/theme/app_colors_ext.dart';
@@ -43,6 +44,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       context.read<HealthRecordProvider>().loadRecords(userId),
       context.read<AiInsightProvider>().loadInsights(userId),
       context.read<DoctorSummaryProvider>().loadSummaries(userId),
+      context.read<PrivacyProvider>().loadSettings(userId),
     ]);
 
     if (mounted) {
@@ -56,6 +58,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final symptomProvider = context.watch<SymptomProvider>();
     final recordProvider = context.watch<HealthRecordProvider>();
     final auth = context.read<AuthProvider>();
+    final privacyProvider = context.watch<PrivacyProvider>();
 
     final recentLog = symptomProvider.logs.isNotEmpty
         ? symptomProvider.logs.first
@@ -144,7 +147,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     if (recentLog != null) ...[
                       const _SectionTitle(title: 'Latest Log'),
                       const SizedBox(height: 10),
-                      _RecentLogCard(log: recentLog),
+                      _RecentLogCard(
+                        log: recentLog,
+                        hideDetails: privacyProvider.hideSensitive,
+                      ),
                       const SizedBox(height: 24),
                     ],
 
@@ -294,17 +300,19 @@ class _SectionTitle extends StatelessWidget {
 }
 
 class _RecentLogCard extends StatelessWidget {
-  const _RecentLogCard({required this.log});
+  const _RecentLogCard({required this.log, this.hideDetails = false});
+
   final SymptomLog log;
+  final bool hideDetails;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: context.card,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.border),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,23 +327,54 @@ class _RecentLogCard extends StatelessWidget {
                   color: AppTheme.primary,
                 ),
               ),
+              // Hide pain level if privacy mode on
               Text(
-                'Pain ${log.painLevel}/10',
-                style: TextStyle(color: context.textSecondary, fontSize: 13),
+                hideDetails ? '••••' : 'Pain ${log.painLevel}/10',
+                style: const TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 13,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 6,
-            children: [
-              _MiniChip(label: log.mood),
-              _MiniChip(label: log.periodStatus.replaceAll('_', ' ')),
-              ...log.symptoms.take(2).map((s) => _MiniChip(label: s)),
-              if (log.symptoms.length > 2)
-                _MiniChip(label: '+${log.symptoms.length - 2} more'),
-            ],
-          ),
+          // Hide sensitive chips if privacy mode on
+          hideDetails
+              ? Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.lock_outline,
+                        size: 12,
+                        color: AppTheme.primary,
+                      ),
+                      SizedBox(width: 6),
+                      Text(
+                        'Details hidden for privacy',
+                        style: TextStyle(fontSize: 11, color: AppTheme.primary),
+                      ),
+                    ],
+                  ),
+                )
+              : Wrap(
+                  spacing: 6,
+                  children: [
+                    _MiniChip(label: log.mood),
+                    _MiniChip(label: log.periodStatus.replaceAll('_', ' ')),
+                    ...log.symptoms.take(2).map((s) => _MiniChip(label: s)),
+                    if (log.symptoms.length > 2)
+                      _MiniChip(label: '+${log.symptoms.length - 2} more'),
+                  ],
+                ),
         ],
       ),
     );

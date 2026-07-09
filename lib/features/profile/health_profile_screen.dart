@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:sparkle_lite/core/utils/logger.dart';
 
 import '../../core/routing/app_router.dart';
 import '../../core/theme/app_theme.dart';
@@ -75,8 +76,7 @@ class _HealthProfileScreenState extends State<HealthProfileScreen> {
       }
     } catch (e, st) {
       if (mounted) {
-        debugPrint('PROFILE SAVE ERROR: $e');
-        debugPrintStack(stackTrace: st);
+        Logger.error('PROFILE SAVE ERROR: $e \n$st');
 
         if (mounted) {
           ScaffoldMessenger.of(
