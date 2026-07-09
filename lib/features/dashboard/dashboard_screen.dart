@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_date_formatter/smart_date_formatter.dart';
 import 'package:sparkle_lite/core/theme/theme_provider.dart';
+
 import '../../core/routing/app_router.dart';
+import '../../core/theme/app_colors_ext.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/symptom_log.dart';
 import '../ai_insight/ai_insight_provider.dart';
@@ -60,6 +62,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         : null;
 
     return Scaffold(
+      backgroundColor: context.bg,
       appBar: AppBar(
         title: const Text('Sparkle'),
         actions: [
@@ -93,7 +96,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
       body: _isInitialLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(color: AppTheme.primary),
+            )
           : RefreshIndicator(
               onRefresh: _loadDashboardData,
               child: SingleChildScrollView(
@@ -107,13 +112,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.textPrimary,
+                            color: context.textPrimary,
                           ),
                     ),
                     if (profile != null)
                       Text(
                         profile.lifeStage,
-                        style: const TextStyle(color: AppTheme.textSecondary),
+                        style: TextStyle(color: context.textSecondary),
                       ),
                     const SizedBox(height: 24),
 
@@ -229,13 +234,19 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Slightly stronger tint in dark mode so the card doesn't disappear
+    // into the dark background (0.08/0.2 alpha reads as almost invisible
+    // on a near-black surface).
+    final fillAlpha = context.isDarkMode ? 0.16 : 0.08;
+    final borderAlpha = context.isDarkMode ? 0.35 : 0.2;
+
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
+          color: color.withValues(alpha: fillAlpha),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
+          border: Border.all(color: color.withValues(alpha: borderAlpha)),
         ),
         child: Row(
           children: [
@@ -254,10 +265,7 @@ class _StatCard extends StatelessWidget {
                 ),
                 Text(
                   label,
-                  style: const TextStyle(
-                    color: AppTheme.textSecondary,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: context.textSecondary, fontSize: 12),
                 ),
               ],
             ),
@@ -276,10 +284,10 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontWeight: FontWeight.bold,
         fontSize: 16,
-        color: AppTheme.textPrimary,
+        color: context.textPrimary,
       ),
     );
   }
@@ -294,9 +302,9 @@ class _RecentLogCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFEEF0F3)),
+        border: Border.all(color: context.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,10 +321,7 @@ class _RecentLogCard extends StatelessWidget {
               ),
               Text(
                 'Pain ${log.painLevel}/10',
-                style: const TextStyle(
-                  color: AppTheme.textSecondary,
-                  fontSize: 13,
-                ),
+                style: TextStyle(color: context.textSecondary, fontSize: 13),
               ),
             ],
           ),
@@ -346,7 +351,9 @@ class _MiniChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: AppTheme.primary.withValues(alpha: 0.08),
+        color: AppTheme.primary.withValues(
+          alpha: context.isDarkMode ? 0.18 : 0.08,
+        ),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
@@ -377,23 +384,25 @@ class _QuickActionCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.card,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFEEF0F3)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          border: Border.all(color: context.border),
+          boxShadow: context.isDarkMode
+              ? []
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: color.withValues(alpha: context.isDarkMode ? 0.18 : 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: color, size: 18),
@@ -402,10 +411,10 @@ class _QuickActionCard extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
-                  color: AppTheme.textPrimary,
+                  color: context.textPrimary,
                 ),
               ),
             ),
