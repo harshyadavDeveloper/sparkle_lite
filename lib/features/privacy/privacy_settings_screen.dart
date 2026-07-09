@@ -5,7 +5,9 @@ import 'package:provider/provider.dart';
 import 'package:sparkle_lite/core/routing/app_router.dart';
 import 'package:sparkle_lite/core/theme/theme_provider.dart';
 import 'package:sparkle_lite/data/services/shared_pref_service.dart';
+
 import '../../core/constants/preference_keys.dart';
+import '../../core/theme/app_colors_ext.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/privacy_settings.dart';
 
@@ -154,12 +156,16 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator(color: AppTheme.primary)),
+      return Scaffold(
+        backgroundColor: context.bg,
+        body: const Center(
+          child: CircularProgressIndicator(color: AppTheme.primary),
+        ),
       );
     }
 
     return Scaffold(
+      backgroundColor: context.bg,
       appBar: AppBar(title: const Text('Privacy Settings')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -170,15 +176,19 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
             Consumer<ThemeProvider>(
               builder: (context, themeProvider, _) => SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text(
+                title: Text(
                   'Dark mode',
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                    color: context.textPrimary,
+                  ),
                 ),
                 subtitle: Text(
                   themeProvider.isDarkMode
                       ? 'Dark theme active'
                       : 'Light theme active',
-                  style: const TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 12, color: context.textSecondary),
                 ),
                 secondary: Icon(
                   themeProvider.isDarkMode
@@ -191,22 +201,26 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                 onChanged: (_) => themeProvider.toggleTheme(),
               ),
             ),
-            const Divider(),
+            Divider(color: context.border),
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.05),
+                color: AppTheme.primary.withValues(
+                  alpha: context.isDarkMode ? 0.1 : 0.05,
+                ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.primary.withValues(alpha: 0.2),
+                  color: AppTheme.primary.withValues(
+                    alpha: context.isDarkMode ? 0.35 : 0.2,
+                  ),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 '🔒 Your privacy matters. Sensitive notifications '
                 'are generic by default so your health data stays '
                 'private on your device.',
                 style: TextStyle(
-                  color: AppTheme.textSecondary,
+                  color: context.textSecondary,
                   fontSize: 13,
                   height: 1.4,
                 ),
@@ -235,7 +249,7 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                 ),
               ),
             ),
-            const Divider(),
+            Divider(color: context.border),
 
             const _SectionHeader(title: 'Notifications'),
             ListTile(
@@ -244,16 +258,19 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                 Icons.notifications_outlined,
                 color: AppTheme.primary,
               ),
-              title: const Text('Notification preferences'),
-              subtitle: const Text('Manage reminders and notification privacy'),
-              trailing: const Icon(
-                Icons.chevron_right,
-                color: AppTheme.textSecondary,
+              title: Text(
+                'Notification preferences',
+                style: TextStyle(color: context.textPrimary),
               ),
+              subtitle: Text(
+                'Manage reminders and notification privacy',
+                style: TextStyle(color: context.textSecondary),
+              ),
+              trailing: Icon(Icons.chevron_right, color: context.textSecondary),
               onTap: () =>
                   Navigator.pushNamed(context, AppRouter.notificationSettings),
             ),
-            const Divider(),
+            Divider(color: context.border),
 
             const _SectionHeader(title: 'Sharing'),
             _PrivacyToggle(
@@ -296,7 +313,7 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                 ),
               ),
             ),
-            const Divider(),
+            Divider(color: context.border),
 
             const _SectionHeader(title: 'Account'),
             ListTile(
@@ -305,8 +322,14 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                 Icons.download_outlined,
                 color: AppTheme.primary,
               ),
-              title: const Text('Export my data'),
-              subtitle: const Text('Download a copy of your health data'),
+              title: Text(
+                'Export my data',
+                style: TextStyle(color: context.textPrimary),
+              ),
+              subtitle: Text(
+                'Download a copy of your health data',
+                style: TextStyle(color: context.textSecondary),
+              ),
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Export feature coming soon')),
@@ -320,7 +343,10 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                 'Delete account',
                 style: TextStyle(color: AppTheme.error),
               ),
-              subtitle: const Text('Permanently delete your account and data'),
+              subtitle: Text(
+                'Permanently delete your account and data',
+                style: TextStyle(color: context.textSecondary),
+              ),
               onTap: () {
                 showDialog(
                   context: context,
@@ -379,10 +405,10 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Text(
         title.toUpperCase(),
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w600,
-          color: AppTheme.textSecondary,
+          color: context.textSecondary,
           letterSpacing: 1.2,
         ),
       ),
@@ -409,15 +435,15 @@ class _PrivacyToggle extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       title: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.w500,
-          color: AppTheme.textPrimary,
+          color: context.textPrimary,
           fontSize: 14,
         ),
       ),
       subtitle: Text(
         subtitle,
-        style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+        style: TextStyle(color: context.textSecondary, fontSize: 12),
       ),
       value: value,
       activeThumbColor: AppTheme.primary,

@@ -2,7 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sparkle_lite/data/services/shared_pref_service.dart';
+import 'package:sparkle_lite/features/ai_insight/ai_insight_result_screen.dart';
+
 import '../../core/constants/preference_keys.dart';
+import '../../core/theme/app_colors_ext.dart';
 import '../../core/theme/app_theme.dart';
 
 class NotificationPreferencesScreen extends StatefulWidget {
@@ -164,45 +167,29 @@ class _NotificationPreferencesScreenState
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator(color: AppTheme.primary)),
+      return Scaffold(
+        backgroundColor: context.bg,
+        body: const Center(
+          child: CircularProgressIndicator(color: AppTheme.primary),
+        ),
       );
     }
 
     return Scaffold(
+      backgroundColor: context.bg,
       appBar: AppBar(title: const Text('Notification Preferences')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF8E1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFFFE082)),
-              ),
-              child: const Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.info_outline, size: 16, color: Color(0xFF92610A)),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Generic notification text is ON by default. '
-                      'This means notifications say "You have a health '
-                      'reminder" instead of revealing health details '
-                      'on your lock screen.',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF92610A),
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            const WarningBox(
+              icon: Icons.info_outline,
+              message:
+                  'Generic notification text is ON by default. '
+                  'This means notifications say "You have a health '
+                  'reminder" instead of revealing health details '
+                  'on your lock screen.',
             ),
             const SizedBox(height: 24),
 
@@ -216,7 +203,7 @@ class _NotificationPreferencesScreenState
               onChanged: (val) => _updateToggle(() => _useGenericText = val),
               highlightColor: AppTheme.primary,
             ),
-            const Divider(),
+            Divider(color: context.border),
             const SizedBox(height: 8),
 
             const _SectionHeader(title: 'Reminders'),
@@ -247,7 +234,7 @@ class _NotificationPreferencesScreenState
               onChanged: (val) =>
                   _updateToggle(() => _medicationReminders = val),
             ),
-            const Divider(),
+            Divider(color: context.border),
             const SizedBox(height: 8),
 
             const _SectionHeader(title: 'Reports'),
@@ -261,6 +248,10 @@ class _NotificationPreferencesScreenState
             const SizedBox(height: 32),
 
             const _SectionHeader(title: 'Notification Preview'),
+            // This mock deliberately mimics a real OS notification, which
+            // stays light-surfaced/dark-text on most platforms regardless
+            // of the app's own theme — so it intentionally does NOT follow
+            // context.card/context.textPrimary here.
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -312,7 +303,9 @@ class _NotificationPreferencesScreenState
                 fontSize: 12,
                 color: _useGenericText
                     ? AppTheme.success
-                    : const Color(0xFF92610A),
+                    : (context.isDarkMode
+                          ? const Color(0xFFE0B84D)
+                          : const Color(0xFF92610A)),
               ),
             ),
             const SizedBox(height: 32),
@@ -347,10 +340,10 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title.toUpperCase(),
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w600,
-          color: AppTheme.textSecondary,
+          color: context.textSecondary,
           letterSpacing: 1.2,
         ),
       ),
@@ -383,13 +376,13 @@ class _NotificationTile extends StatelessWidget {
           fontWeight: FontWeight.w500,
           color: value && highlightColor != null
               ? highlightColor
-              : AppTheme.textPrimary,
+              : context.textPrimary,
           fontSize: 14,
         ),
       ),
       subtitle: Text(
         subtitle,
-        style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+        style: TextStyle(color: context.textSecondary, fontSize: 12),
       ),
       value: value,
       activeThumbColor: highlightColor ?? AppTheme.primary,

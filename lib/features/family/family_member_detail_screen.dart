@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import '../../core/theme/app_colors_ext.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/family_member.dart';
 
@@ -140,6 +142,7 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: context.bg,
       appBar: AppBar(
         title: Text(widget.member.name),
         actions: [
@@ -172,10 +175,14 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFEC407A).withValues(alpha: 0.05),
+                color: const Color(
+                  0xFFEC407A,
+                ).withValues(alpha: context.isDarkMode ? 0.12 : 0.05),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: const Color(0xFFEC407A).withValues(alpha: 0.2),
+                  color: const Color(
+                    0xFFEC407A,
+                  ).withValues(alpha: context.isDarkMode ? 0.35 : 0.2),
                 ),
               ),
               child: Row(
@@ -184,7 +191,7 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen> {
                     radius: 24,
                     backgroundColor: const Color(
                       0xFFEC407A,
-                    ).withValues(alpha: 0.1),
+                    ).withValues(alpha: context.isDarkMode ? 0.2 : 0.1),
                     child: Text(
                       widget.member.name[0].toUpperCase(),
                       style: const TextStyle(
@@ -200,17 +207,17 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen> {
                     children: [
                       Text(
                         widget.member.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
-                          color: AppTheme.textPrimary,
+                          color: context.textPrimary,
                         ),
                       ),
                       Text(
                         '${widget.member.relationship} · '
                         '${widget.member.ageRange}',
-                        style: const TextStyle(
-                          color: AppTheme.textSecondary,
+                        style: TextStyle(
+                          color: context.textSecondary,
                           fontSize: 13,
                         ),
                       ),
@@ -224,10 +231,14 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.05),
+                color: AppTheme.primary.withValues(
+                  alpha: context.isDarkMode ? 0.1 : 0.05,
+                ),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: AppTheme.primary.withValues(alpha: 0.2),
+                  color: AppTheme.primary.withValues(
+                    alpha: context.isDarkMode ? 0.35 : 0.2,
+                  ),
                 ),
               ),
               child: const Row(
@@ -250,6 +261,8 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen> {
             DropdownButtonFormField<String>(
               initialValue: _selectedBloodGroup,
               decoration: const InputDecoration(labelText: 'Blood Group'),
+              dropdownColor: Theme.of(context).cardColor,
+              style: TextStyle(color: context.textPrimary),
               items: [
                 const DropdownMenuItem(child: Text('Not specified')),
                 ..._bloodGroups.map(
@@ -278,6 +291,10 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen> {
                   },
                   selectedColor: AppTheme.primary.withValues(alpha: 0.15),
                   checkmarkColor: AppTheme.primary,
+                  backgroundColor: context.card,
+                  labelStyle: TextStyle(
+                    color: selected ? AppTheme.primary : context.textPrimary,
+                  ),
                 );
               }).toList(),
             ),
@@ -289,8 +306,10 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen> {
                 Expanded(
                   child: TextField(
                     controller: _medicationController,
-                    decoration: const InputDecoration(
+                    style: TextStyle(color: context.textPrimary),
+                    decoration: InputDecoration(
                       hintText: 'e.g. Metformin 500mg',
+                      hintStyle: TextStyle(color: context.textSecondary),
                     ),
                     onSubmitted: (_) => _addMedication(),
                   ),
@@ -313,10 +332,18 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen> {
                 runSpacing: 4,
                 children: _medications.map((med) {
                   return Chip(
-                    label: Text(med, style: const TextStyle(fontSize: 12)),
+                    label: Text(
+                      med,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: context.textPrimary,
+                      ),
+                    ),
                     onDeleted: () => setState(() => _medications.remove(med)),
                     deleteIconColor: AppTheme.error,
-                    backgroundColor: AppTheme.primary.withValues(alpha: 0.08),
+                    backgroundColor: AppTheme.primary.withValues(
+                      alpha: context.isDarkMode ? 0.16 : 0.08,
+                    ),
                   );
                 }).toList(),
               ),
@@ -326,6 +353,7 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen> {
             const _SectionHeader(title: 'Doctor / Clinic'),
             TextFormField(
               controller: _doctorNameController,
+              style: TextStyle(color: context.textPrimary),
               decoration: const InputDecoration(
                 labelText: 'Doctor or clinic name',
                 prefixIcon: Icon(Icons.person_outline),
@@ -334,6 +362,7 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen> {
             const SizedBox(height: 12),
             TextFormField(
               controller: _doctorContactController,
+              style: TextStyle(color: context.textPrimary),
               decoration: const InputDecoration(
                 labelText: 'Contact number (optional)',
                 prefixIcon: Icon(Icons.phone_outlined),
@@ -359,10 +388,12 @@ class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen> {
             TextFormField(
               controller: _notesController,
               maxLines: 4,
-              decoration: const InputDecoration(
+              style: TextStyle(color: context.textPrimary),
+              decoration: InputDecoration(
                 hintText:
                     'Allergies, dietary restrictions, '
                     'recent visits, anything relevant...',
+                hintStyle: TextStyle(color: context.textSecondary),
               ),
             ),
             const SizedBox(height: 32),
@@ -398,10 +429,10 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 10),
       child: Text(
         title.toUpperCase(),
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w600,
-          color: AppTheme.textSecondary,
+          color: context.textSecondary,
           letterSpacing: 1.2,
         ),
       ),

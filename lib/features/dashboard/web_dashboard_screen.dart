@@ -1009,7 +1009,7 @@ class _WebPrivacyPageState extends State<_WebPrivacyPage> {
         });
       }
     } catch (e) {
-      debugPrint('Failed to load privacy settings: $e');
+      Logger.error('Failed to load privacy settings: $e');
     } finally {
       setState(() => _isLoading = false);
     }

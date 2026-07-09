@@ -8,6 +8,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:smart_date_formatter/smart_date_formatter.dart';
+
+import '../../core/theme/app_colors_ext.dart';
 import '../../core/theme/app_theme.dart';
 import 'doctor_summary_provider.dart';
 
@@ -131,10 +133,19 @@ class DoctorSummaryResultScreen extends StatelessWidget {
     final summary = provider.currentSummary;
 
     if (summary == null) {
-      return const Scaffold(body: Center(child: Text('No summary available')));
+      return Scaffold(
+        backgroundColor: context.bg,
+        body: Center(
+          child: Text(
+            'No summary available',
+            style: TextStyle(color: context.textSecondary),
+          ),
+        ),
+      );
     }
 
     return Scaffold(
+      backgroundColor: context.bg,
       appBar: AppBar(
         title: const Text('Visit Summary'),
         automaticallyImplyLeading: false,
@@ -164,18 +175,15 @@ class DoctorSummaryResultScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.access_time_outlined,
                   size: 14,
-                  color: AppTheme.textSecondary,
+                  color: context.textSecondary,
                 ),
                 const SizedBox(width: 6),
                 Text(
                   'Generated ${summary.generatedAt.timeAgo}',
-                  style: const TextStyle(
-                    color: AppTheme.textSecondary,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: context.textSecondary, fontSize: 12),
                 ),
               ],
             ),
@@ -237,15 +245,15 @@ class DoctorSummaryResultScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.grey.withValues(alpha: 0.08),
+                color: context.surfaceMuted,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text(
+              child: Text(
                 'This summary is for personal use only and is not '
                 'a medical document. Always consult a qualified '
                 'healthcare professional.',
                 style: TextStyle(
-                  color: AppTheme.textSecondary,
+                  color: context.textSecondary,
                   fontSize: 11,
                   fontStyle: FontStyle.italic,
                 ),
@@ -332,24 +340,24 @@ class _SummarySection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.card,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFEEF0F3)),
+        border: Border.all(color: context.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
+              color: context.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             content,
-            style: const TextStyle(color: AppTheme.textSecondary, height: 1.4),
+            style: TextStyle(color: context.textSecondary, height: 1.4),
           ),
         ],
       ),
@@ -370,27 +378,28 @@ class _SummaryListSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final highlightBg = context.isDarkMode
+        ? AppTheme.primary.withValues(alpha: 0.1)
+        : AppTheme.primary.withValues(alpha: 0.03);
+    final highlightBorder = context.isDarkMode
+        ? AppTheme.primary.withValues(alpha: 0.35)
+        : AppTheme.primary.withValues(alpha: 0.2);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: highlight
-            ? AppTheme.primary.withValues(alpha: 0.03)
-            : Colors.white,
+        color: highlight ? highlightBg : context.card,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: highlight
-              ? AppTheme.primary.withValues(alpha: 0.2)
-              : const Color(0xFFEEF0F3),
-        ),
+        border: Border.all(color: highlight ? highlightBorder : context.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
+              color: context.textPrimary,
             ),
           ),
           const SizedBox(height: 10),
@@ -405,7 +414,7 @@ class _SummaryListSection extends StatelessWidget {
                     style: TextStyle(
                       color: highlight
                           ? AppTheme.primary
-                          : AppTheme.textSecondary,
+                          : context.textSecondary,
                     ),
                   ),
                   Expanded(
@@ -413,8 +422,8 @@ class _SummaryListSection extends StatelessWidget {
                       item,
                       style: TextStyle(
                         color: highlight
-                            ? AppTheme.textPrimary
-                            : AppTheme.textSecondary,
+                            ? context.textPrimary
+                            : context.textSecondary,
                         height: 1.4,
                       ),
                     ),
