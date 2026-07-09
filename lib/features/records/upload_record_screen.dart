@@ -1,10 +1,13 @@
 import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_date_formatter/smart_date_formatter.dart';
 import 'package:sparkle_lite/data/models/health_record.dart';
+
+import '../../core/theme/app_colors_ext.dart';
 import '../../core/theme/app_theme.dart';
 import 'health_record_provider.dart';
 
@@ -173,6 +176,7 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
     final isUploading = provider.status == RecordStatus.uploading;
 
     return Scaffold(
+      backgroundColor: context.bg,
       appBar: AppBar(
         title: Text(
           widget.existingRecord != null
@@ -187,12 +191,13 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title
               const _SectionLabel(label: 'Report Title *'),
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(
+                style: TextStyle(color: context.textPrimary),
+                decoration: InputDecoration(
                   hintText: 'e.g. Blood Test Report',
+                  hintStyle: TextStyle(color: context.textSecondary),
                 ),
                 validator: (value) => value == null || value.trim().isEmpty
                     ? 'Title is required'
@@ -200,20 +205,24 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Record Type
               const _SectionLabel(label: 'Record Type *'),
               Wrap(
                 spacing: 8,
                 runSpacing: 4,
                 children: _recordTypes.map((type) {
+                  final selected = _recordType == type['value'];
                   return ChoiceChip(
                     label: Text(type['label']!),
-                    selected: _recordType == type['value'],
+                    selected: selected,
                     onSelected: (_) => setState(() {
                       _recordType = type['value'];
                       _recordTypeError = null;
                     }),
                     selectedColor: AppTheme.primary.withValues(alpha: 0.2),
+                    backgroundColor: context.card,
+                    labelStyle: TextStyle(
+                      color: selected ? AppTheme.primary : context.textPrimary,
+                    ),
                   );
                 }).toList(),
               ),
@@ -227,7 +236,6 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                 ),
               const SizedBox(height: 20),
 
-              // Date
               const _SectionLabel(label: 'Record Date *'),
               InkWell(
                 onTap: _pickDate,
@@ -237,9 +245,9 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                     vertical: 16,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.card,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFDDE3EA)),
+                    border: Border.all(color: context.border),
                   ),
                   child: Row(
                     children: [
@@ -254,7 +262,10 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                             : _recordDate.isYesterday
                             ? 'Yesterday'
                             : _recordDate.format('dd MMM yyyy'),
-                        style: const TextStyle(fontSize: 16),
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: context.textPrimary,
+                        ),
                       ),
                     ],
                   ),
@@ -262,17 +273,17 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Doctor Name (optional)
               const _SectionLabel(label: 'Doctor / Clinic Name (optional)'),
               TextFormField(
                 controller: _doctorController,
-                decoration: const InputDecoration(
+                style: TextStyle(color: context.textPrimary),
+                decoration: InputDecoration(
                   hintText: 'e.g. Dr. Rao, City Clinic',
+                  hintStyle: TextStyle(color: context.textSecondary),
                 ),
               ),
               const SizedBox(height: 20),
 
-              // File Upload
               const _SectionLabel(label: 'Attach File (optional)'),
               if (widget.existingRecord?.fileUrl != null &&
                   _selectedFile == null) ...[
@@ -282,20 +293,23 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                     vertical: 16,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.card,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppTheme.primary),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.check_circle_outline, color: AppTheme.success),
-                      SizedBox(width: 12),
+                      const Icon(
+                        Icons.check_circle_outline,
+                        color: AppTheme.success,
+                      ),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           'File already attached — tap below to replace',
                           style: TextStyle(
                             fontSize: 13,
-                            color: AppTheme.textSecondary,
+                            color: context.textSecondary,
                           ),
                         ),
                       ),
@@ -304,7 +318,6 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                // Show existing image preview if local path available
                 if (widget.existingRecord?.localFilePath != null &&
                     _isImageFile(widget.existingRecord!.localFilePath)) ...[
                   ClipRRect(
@@ -319,7 +332,6 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                   const SizedBox(height: 8),
                 ],
 
-                // Replace file button
                 OutlinedButton.icon(
                   onPressed: _pickFile,
                   style: OutlinedButton.styleFrom(
@@ -339,7 +351,6 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                   ),
                 ),
               ] else ...[
-                // Normal file picker (new record or after picking new file)
                 InkWell(
                   onTap: _pickFile,
                   child: Container(
@@ -348,12 +359,12 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                       vertical: 16,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.card,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: _selectedFile != null
                             ? AppTheme.primary
-                            : const Color(0xFFDDE3EA),
+                            : context.border,
                       ),
                     ),
                     child: Row(
@@ -364,7 +375,7 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                               : Icons.upload_file_outlined,
                           color: _selectedFile != null
                               ? AppTheme.success
-                              : AppTheme.textSecondary,
+                              : context.textSecondary,
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -373,8 +384,8 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                             style: TextStyle(
                               fontSize: 14,
                               color: _selectedFile != null
-                                  ? AppTheme.textPrimary
-                                  : AppTheme.textSecondary,
+                                  ? context.textPrimary
+                                  : context.textSecondary,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -385,10 +396,10 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                               _selectedFile = null;
                               _selectedFileName = null;
                             }),
-                            child: const Icon(
+                            child: Icon(
                               Icons.close,
                               size: 18,
-                              color: AppTheme.textSecondary,
+                              color: context.textSecondary,
                             ),
                           ),
                       ],
@@ -396,7 +407,6 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
                   ),
                 ),
 
-                // New file image preview
                 if (_selectedFile != null &&
                     _isImageFile(_selectedFileName)) ...[
                   const SizedBox(height: 12),
@@ -413,13 +423,14 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
               ],
               const SizedBox(height: 20),
 
-              // Notes (optional)
               const _SectionLabel(label: 'Notes (optional)'),
               TextFormField(
                 controller: _notesController,
                 maxLines: 3,
-                decoration: const InputDecoration(
+                style: TextStyle(color: context.textPrimary),
+                decoration: InputDecoration(
                   hintText: 'Any additional notes...',
+                  hintStyle: TextStyle(color: context.textSecondary),
                 ),
               ),
               const SizedBox(height: 32),
@@ -428,10 +439,10 @@ class _UploadRecordScreenState extends State<UploadRecordScreen> {
               if (isUploading) ...[
                 const LinearProgressIndicator(color: AppTheme.primary),
                 const SizedBox(height: 12),
-                const Center(
+                Center(
                   child: Text(
                     'Uploading your record...',
-                    style: TextStyle(color: AppTheme.textSecondary),
+                    style: TextStyle(color: context.textSecondary),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -469,10 +480,10 @@ class _SectionLabel extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 14,
-          color: AppTheme.textPrimary,
+          color: context.textPrimary,
         ),
       ),
     );

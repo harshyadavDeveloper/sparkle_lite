@@ -281,8 +281,6 @@ A layer-first structure (all models in one folder, all providers in one folder) 
 - Add Isar offline cache layer between repositories and Firestore
 - Implement real push notifications via Firebase Cloud Messaging
 - Add biometric authentication (fingerprint/Face ID) for app lock
-- Add PDF export for doctor visit summary
-- Expand AI insight engine to use a real health-aware LLM API
 - Add localization — smart_date_formatter already supports 16 languages
 - Add dark mode — ThemeMode toggle is architecturally straightforward
 

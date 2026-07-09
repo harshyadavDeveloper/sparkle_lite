@@ -72,7 +72,6 @@ class AuthProvider extends ChangeNotifier {
       final credential = await _authService.signInWithGoogle();
 
       if (credential == null) {
-        // User cancelled the picker
         Logger.info('Google sign-in cancelled by user');
         _status = AuthStatus.unauthenticated;
         notifyListeners();
@@ -80,7 +79,6 @@ class AuthProvider extends ChangeNotifier {
       }
 
       Logger.info('User signed in with Google: ${credential.user?.email}');
-      // _status flips to authenticated via the authStateChanges listener
       return true;
     } on FirebaseAuthException catch (e) {
       Logger.error('FirebaseAuthException during Google sign-in: ${e.code}');

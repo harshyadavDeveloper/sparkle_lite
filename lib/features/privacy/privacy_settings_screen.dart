@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sparkle_lite/core/routing/app_router.dart';
+import 'package:sparkle_lite/core/theme/theme_provider.dart';
 import 'package:sparkle_lite/data/services/shared_pref_service.dart';
 import '../../core/constants/preference_keys.dart';
 import '../../core/theme/app_theme.dart';
@@ -164,6 +166,32 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const _SectionHeader(title: 'Appearance'),
+            Consumer<ThemeProvider>(
+              builder: (context, themeProvider, _) => SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text(
+                  'Dark mode',
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+                ),
+                subtitle: Text(
+                  themeProvider.isDarkMode
+                      ? 'Dark theme active'
+                      : 'Light theme active',
+                  style: const TextStyle(fontSize: 12),
+                ),
+                secondary: Icon(
+                  themeProvider.isDarkMode
+                      ? Icons.dark_mode_outlined
+                      : Icons.light_mode_outlined,
+                  color: AppTheme.primary,
+                ),
+                value: themeProvider.isDarkMode,
+                activeThumbColor: AppTheme.primary,
+                onChanged: (_) => themeProvider.toggleTheme(),
+              ),
+            ),
+            const Divider(),
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(

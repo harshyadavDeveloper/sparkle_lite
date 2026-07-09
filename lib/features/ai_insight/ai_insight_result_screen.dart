@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../core/theme/app_colors_ext.dart';
 import '../../core/theme/app_theme.dart';
 import 'ai_insight_provider.dart';
 
@@ -12,10 +14,19 @@ class AiInsightResultScreen extends StatelessWidget {
     final insight = provider.currentInsight;
 
     if (insight == null) {
-      return const Scaffold(body: Center(child: Text('No insight available')));
+      return Scaffold(
+        backgroundColor: context.bg,
+        body: Center(
+          child: Text(
+            'No insight available',
+            style: TextStyle(color: context.textSecondary),
+          ),
+        ),
+      );
     }
 
     return Scaffold(
+      backgroundColor: context.bg,
       appBar: AppBar(
         title: const Text('Your Health Insight'),
         automaticallyImplyLeading: false,
@@ -25,38 +36,13 @@ class AiInsightResultScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF8E1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFFFE082)),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(
-                    Icons.warning_amber_outlined,
-                    color: Color(0xFF92610A),
-                    size: 18,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      insight.disclaimer,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF92610A),
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            WarningBox(
+              icon: Icons.warning_amber_outlined,
+              message: insight.disclaimer,
+              iconSize: 18,
             ),
             const SizedBox(height: 24),
 
-            // Summary
             _InsightSection(
               icon: '📋',
               title: 'Summary',
@@ -64,7 +50,6 @@ class AiInsightResultScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Pattern
             _InsightSection(
               icon: '🔍',
               title: 'Pattern Noticed',
@@ -72,7 +57,6 @@ class AiInsightResultScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Care guidance
             _InsightSection(
               icon: '💙',
               title: 'Care Guidance',
@@ -80,26 +64,25 @@ class AiInsightResultScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Doctor questions
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.card,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFEEF0F3)),
+                border: Border.all(color: context.border),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Text('🩺', style: TextStyle(fontSize: 18)),
-                      SizedBox(width: 8),
+                      const Text('🩺', style: TextStyle(fontSize: 18)),
+                      const SizedBox(width: 8),
                       Text(
                         'Questions to Ask Your Doctor',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: AppTheme.textPrimary,
+                          color: context.textPrimary,
                         ),
                       ),
                     ],
@@ -118,8 +101,8 @@ class AiInsightResultScreen extends StatelessWidget {
                           Expanded(
                             child: Text(
                               q,
-                              style: const TextStyle(
-                                color: AppTheme.textSecondary,
+                              style: TextStyle(
+                                color: context.textSecondary,
                                 height: 1.4,
                               ),
                             ),
@@ -133,7 +116,6 @@ class AiInsightResultScreen extends StatelessWidget {
             ),
             const SizedBox(height: 32),
 
-            // Save to timeline
             ElevatedButton.icon(
               onPressed: provider.status == AiInsightStatus.saved
                   ? null
@@ -167,7 +149,6 @@ class AiInsightResultScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // Done button
             OutlinedButton(
               onPressed: () {
                 provider.reset();
@@ -207,9 +188,9 @@ class _InsightSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.card,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFEEF0F3)),
+        border: Border.all(color: context.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,9 +201,9 @@ class _InsightSection extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
+                  color: context.textPrimary,
                 ),
               ),
             ],
@@ -230,7 +211,59 @@ class _InsightSection extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             content,
-            style: const TextStyle(color: AppTheme.textSecondary, height: 1.5),
+            style: TextStyle(color: context.textSecondary, height: 1.5),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class WarningBox extends StatelessWidget {
+  const WarningBox({
+    super.key,
+    required this.icon,
+    required this.message,
+    this.iconSize = 16,
+    this.fontSize = 12,
+    this.padding = const EdgeInsets.all(14),
+  });
+
+  final IconData icon;
+  final String message;
+  final double iconSize;
+  final double fontSize;
+  final EdgeInsets padding;
+
+  @override
+  Widget build(BuildContext context) {
+    final bgColor = context.isDarkMode
+        ? const Color(0xFF3A2E12)
+        : const Color(0xFFFFF8E1);
+    final borderColor = context.isDarkMode
+        ? const Color(0xFF5C4A1E)
+        : const Color(0xFFFFE082);
+    final fgColor = context.isDarkMode
+        ? const Color(0xFFE0B84D)
+        : const Color(0xFF92610A);
+
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: borderColor),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: iconSize, color: fgColor),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(fontSize: fontSize, color: fgColor, height: 1.4),
+            ),
           ),
         ],
       ),

@@ -139,7 +139,6 @@ class DoctorSummaryResultScreen extends StatelessWidget {
         title: const Text('Visit Summary'),
         automaticallyImplyLeading: false,
         actions: [
-          // Copy button
           IconButton(
             icon: const Icon(Icons.copy_outlined),
             tooltip: 'Copy summary',
@@ -163,7 +162,6 @@ class DoctorSummaryResultScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Generated date
             Row(
               children: [
                 const Icon(
@@ -183,14 +181,12 @@ class DoctorSummaryResultScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Profile
             _SummarySection(
               title: '👤 Profile',
               content: summary.profileSnapshot,
             ),
             const SizedBox(height: 16),
 
-            // Recent symptoms
             if (summary.recentSymptoms.isNotEmpty) ...[
               _SummaryListSection(
                 title: '❤️ Recent Symptoms',
@@ -199,7 +195,6 @@ class DoctorSummaryResultScreen extends StatelessWidget {
               const SizedBox(height: 16),
             ],
 
-            // Period history
             if (summary.periodHistory.isNotEmpty) ...[
               _SummaryListSection(
                 title: '📅 Period History',
@@ -208,7 +203,6 @@ class DoctorSummaryResultScreen extends StatelessWidget {
               const SizedBox(height: 16),
             ],
 
-            // Records
             if (summary.uploadedRecordTitles.isNotEmpty) ...[
               _SummaryListSection(
                 title: '🗂️ Health Records',
@@ -217,7 +211,6 @@ class DoctorSummaryResultScreen extends StatelessWidget {
               const SizedBox(height: 16),
             ],
 
-            // Medications
             if (summary.currentMedications.isNotEmpty) ...[
               _SummaryListSection(
                 title: '💊 Current Medications',
@@ -226,7 +219,6 @@ class DoctorSummaryResultScreen extends StatelessWidget {
               const SizedBox(height: 16),
             ],
 
-            // Doctor questions
             _SummaryListSection(
               title: '🩺 Questions for Your Doctor',
               items: summary.questionsForDoctor,
@@ -234,7 +226,6 @@ class DoctorSummaryResultScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // User notes
             if (summary.userNotes != null) ...[
               _SummarySection(
                 title: '📝 Your Notes',
@@ -243,7 +234,6 @@ class DoctorSummaryResultScreen extends StatelessWidget {
               const SizedBox(height: 16),
             ],
 
-            // Disclaimer
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -263,7 +253,6 @@ class DoctorSummaryResultScreen extends StatelessWidget {
             ),
             const SizedBox(height: 32),
 
-            // Save to timeline
             OutlinedButton.icon(
               onPressed: () => _saveTextFile(context, summary),
               icon: const Icon(Icons.download_outlined),

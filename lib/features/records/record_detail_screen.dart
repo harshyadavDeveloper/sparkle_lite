@@ -19,14 +19,13 @@ class RecordDetailScreen extends StatelessWidget {
   void _showImagePreview(BuildContext context) {
     showDialog(
       context: context,
-      barrierDismissible: false, // only cancel button dismisses
+      barrierDismissible: false,
       builder: (ctx) => Dialog(
         backgroundColor: Colors.black,
         insetPadding: const EdgeInsets.all(12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
@@ -44,7 +43,6 @@ class RecordDetailScreen extends StatelessWidget {
               ),
             ),
 
-            // Zoomable image
             SizedBox(
               height: MediaQuery.of(ctx).size.height * 0.65,
               child: InteractiveViewer(
@@ -57,7 +55,6 @@ class RecordDetailScreen extends StatelessWidget {
               ),
             ),
 
-            // Pinch hint
             const Padding(
               padding: EdgeInsets.only(top: 8),
               child: Text(
@@ -66,7 +63,6 @@ class RecordDetailScreen extends StatelessWidget {
               ),
             ),
 
-            // Cancel button
             Padding(
               padding: const EdgeInsets.all(16),
               child: SizedBox(
@@ -146,7 +142,6 @@ class RecordDetailScreen extends StatelessWidget {
               ),
             ],
 
-            // Image preview section
             if (_hasLocalImage) ...[
               const SizedBox(height: 24),
               const Text(
@@ -170,7 +165,6 @@ class RecordDetailScreen extends StatelessWidget {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    // Tap to expand overlay
                     Positioned(
                       bottom: 8,
                       right: 8,
@@ -204,7 +198,6 @@ class RecordDetailScreen extends StatelessWidget {
               ),
             ],
 
-            // Non-image file indicator
             if (record.fileUrl != null && !_hasLocalImage) ...[
               const SizedBox(height: 24),
               Container(

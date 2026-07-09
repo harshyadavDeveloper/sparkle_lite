@@ -11,8 +11,6 @@ class LoginScreenWeb extends StatelessWidget {
     return Scaffold(
       body: Row(
         children: [
-          // Branding panel — hidden below 900px so it doesn't awkwardly
-          // squeeze the form on tablet-width browser windows.
           if (MediaQuery.of(context).size.width > 900)
             Expanded(
               flex: 5,
@@ -60,7 +58,6 @@ class LoginScreenWeb extends StatelessWidget {
                 ),
               ),
             ),
-          // Form panel
           Expanded(
             flex: 4,
             child: Center(

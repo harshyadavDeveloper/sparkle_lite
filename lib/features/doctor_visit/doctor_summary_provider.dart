@@ -52,7 +52,6 @@ class DoctorSummaryProvider extends ChangeNotifier {
       if (response != null) {
         Logger.success('DoctorSummaryProvider → Gemini summary received');
 
-        // Build recent symptoms from logs for storage
         final recentSymptoms = recentLogs
             .take(5)
             .map(
@@ -73,12 +72,10 @@ class DoctorSummaryProvider extends ChangeNotifier {
             )
             .toList();
 
-        // Build questions — use Gemini's specific questions
         final geminiQuestions = List<String>.from(
           response['questionsForDoctor'] ?? [],
         );
 
-        // Append any extra auto-generated ones
         final autoQuestions = _generateQuestions(profile, recentLogs);
         final allQuestions = {...geminiQuestions, ...autoQuestions}.toList();
 
@@ -100,7 +97,6 @@ class DoctorSummaryProvider extends ChangeNotifier {
 
         _status = DoctorSummaryStatus.generated;
       } else {
-        // Fallback to mock
         Logger.warning(
           'DoctorSummaryProvider → Gemini failed, using mock generation',
         );
