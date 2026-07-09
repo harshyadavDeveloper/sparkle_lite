@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:smart_date_formatter/smart_date_formatter.dart';
+import 'package:sparkle_lite/features/privacy/privacy_provider.dart';
 
 import '../../core/theme/app_colors_ext.dart';
 import '../../core/theme/app_theme.dart';
@@ -154,6 +155,33 @@ class DoctorSummaryResultScreen extends StatelessWidget {
             icon: const Icon(Icons.copy_outlined),
             tooltip: 'Copy summary',
             onPressed: () async {
+              final privacy = context.read<PrivacyProvider>();
+
+              if (privacy.requireConfirmation) {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Copy Summary'),
+                    content: const Text(
+                      'This summary contains your personal health '
+                      'information. Are you sure you want to copy it '
+                      'to clipboard?',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: const Text('Copy'),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirm != true) return;
+              }
+
               await Clipboard.setData(
                 ClipboardData(text: _buildExportText(summary)),
               );
@@ -262,13 +290,65 @@ class DoctorSummaryResultScreen extends StatelessWidget {
             const SizedBox(height: 32),
 
             OutlinedButton.icon(
-              onPressed: () => _saveTextFile(context, summary),
+              onPressed: () async {
+                final privacy = context.read<PrivacyProvider>();
+                if (privacy.requireConfirmation) {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Download Summary'),
+                      content: const Text(
+                        'This file contains your personal health '
+                        'information. Proceed with download?',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: const Text('Download'),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirm != true || !context.mounted) return;
+                }
+                await _saveTextFile(context, summary);
+              },
               icon: const Icon(Icons.download_outlined),
               label: const Text('Download'),
             ),
             const SizedBox(height: 12),
             OutlinedButton.icon(
-              onPressed: () => _shareTextFile(context, summary),
+              onPressed: () async {
+                final privacy = context.read<PrivacyProvider>();
+                if (privacy.requireConfirmation) {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Share Summary'),
+                      content: const Text(
+                        'This file contains your personal health '
+                        'information. Proceed with sharing?',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: const Text('Share'),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirm != true || !context.mounted) return;
+                }
+                await _shareTextFile(context, summary);
+              },
               icon: const Icon(Icons.share_outlined),
               label: const Text('Share'),
             ),

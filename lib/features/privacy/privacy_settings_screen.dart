@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:sparkle_lite/core/routing/app_router.dart';
 import 'package:sparkle_lite/core/theme/theme_provider.dart';
 import 'package:sparkle_lite/data/services/shared_pref_service.dart';
+import 'package:sparkle_lite/features/privacy/privacy_provider.dart';
 
 import '../../core/constants/preference_keys.dart';
 import '../../core/theme/app_colors_ext.dart';
@@ -126,6 +127,9 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
           .set(updated.toMap());
 
       await _cacheLocally(updated);
+      if (mounted) {
+        context.read<PrivacyProvider>().updateSettings(updated);
+      }
 
       setState(() {
         _settings = updated;

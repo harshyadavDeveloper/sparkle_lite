@@ -10,6 +10,7 @@ import 'package:sparkle_lite/features/auth/login/login_screen.dart';
 import 'package:sparkle_lite/features/dashboard/dashboard_screen.dart';
 import 'package:sparkle_lite/features/dashboard/web_dashboard_screen.dart';
 import 'package:sparkle_lite/features/doctor_visit/doctor_summary_provider.dart';
+import 'package:sparkle_lite/features/privacy/privacy_provider.dart';
 import 'package:sparkle_lite/features/profile/profile_provider.dart';
 import 'package:sparkle_lite/features/records/health_record_provider.dart';
 import 'package:sparkle_lite/features/symptom_tracker/symptom_provider.dart';
@@ -38,6 +39,7 @@ class SparkleApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AiInsightProvider()),
         ChangeNotifierProvider(create: (_) => DoctorSummaryProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => PrivacyProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, _) => MaterialApp(
