@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_date_formatter/smart_date_formatter.dart';
+
+import '../../core/theme/app_colors_ext.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/symptom_log.dart';
 import '../symptom_tracker/symptom_provider.dart';
@@ -53,65 +55,48 @@ class _AiInsightInputScreenState extends State<AiInsightInputScreen> {
     final isGenerating = aiProvider.status == AiInsightStatus.loading;
 
     return Scaffold(
+      backgroundColor: context.bg,
       appBar: AppBar(title: const Text('AI Health Insight')),
       body: isGenerating
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(color: AppTheme.primary),
+            )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
-                  color: AppTheme.primary.withValues(alpha: 0.05),
+                  color: AppTheme.primary.withValues(
+                    alpha: context.isDarkMode ? 0.1 : 0.05,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         '🔍 Select logs to analyse',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
-                          color: AppTheme.textPrimary,
+                          color: context.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
-                      const Text(
+                      Text(
                         'Choose recent symptom logs and we\'ll look '
                         'for patterns to discuss with your doctor.',
                         style: TextStyle(
-                          color: AppTheme.textSecondary,
+                          color: context.textSecondary,
                           fontSize: 13,
                           height: 1.4,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFF8E1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFFFE082)),
-                        ),
-                        child: const Row(
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              size: 14,
-                              color: Color(0xFF92610A),
-                            ),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'This feature does not diagnose conditions. '
-                                'It identifies patterns to discuss with your doctor.',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Color(0xFF92610A),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                      const _WarningBox(
+                        icon: Icons.info_outline,
+                        message:
+                            'This feature does not diagnose conditions. '
+                            'It identifies patterns to discuss with your doctor.',
                       ),
                     ],
                   ),
@@ -119,24 +104,24 @@ class _AiInsightInputScreenState extends State<AiInsightInputScreen> {
 
                 Expanded(
                   child: logs.isEmpty
-                      ? const Center(
+                      ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('📋', style: TextStyle(fontSize: 48)),
-                              SizedBox(height: 16),
+                              const Text('📋', style: TextStyle(fontSize: 48)),
+                              const SizedBox(height: 16),
                               Text(
                                 'No symptom logs yet',
                                 style: TextStyle(
-                                  color: AppTheme.textSecondary,
+                                  color: context.textSecondary,
                                   fontSize: 16,
                                 ),
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
                                 'Add symptom logs first to use this feature',
                                 style: TextStyle(
-                                  color: AppTheme.textSecondary,
+                                  color: context.textSecondary,
                                   fontSize: 13,
                                 ),
                               ),
@@ -163,13 +148,17 @@ class _AiInsightInputScreenState extends State<AiInsightInputScreen> {
                                 padding: const EdgeInsets.all(14),
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? AppTheme.primary.withValues(alpha: 0.08)
-                                      : Colors.white,
+                                      ? AppTheme.primary.withValues(
+                                          alpha: context.isDarkMode
+                                              ? 0.16
+                                              : 0.08,
+                                        )
+                                      : context.card,
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
                                     color: isSelected
                                         ? AppTheme.primary
-                                        : const Color(0xFFEEF0F3),
+                                        : context.border,
                                     width: isSelected ? 2 : 1,
                                   ),
                                 ),
@@ -189,7 +178,7 @@ class _AiInsightInputScreenState extends State<AiInsightInputScreen> {
                                         border: Border.all(
                                           color: isSelected
                                               ? AppTheme.primary
-                                              : const Color(0xFFDDE3EA),
+                                              : context.border,
                                           width: 2,
                                         ),
                                       ),
@@ -211,9 +200,9 @@ class _AiInsightInputScreenState extends State<AiInsightInputScreen> {
                                             children: [
                                               Text(
                                                 log.date.calendar,
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontWeight: FontWeight.w600,
-                                                  color: AppTheme.textPrimary,
+                                                  color: context.textPrimary,
                                                 ),
                                               ),
                                               const SizedBox(width: 4),
@@ -223,10 +212,10 @@ class _AiInsightInputScreenState extends State<AiInsightInputScreen> {
                                                 ),
                                                 triggerMode:
                                                     TooltipTriggerMode.tap,
-                                                child: const Icon(
+                                                child: Icon(
                                                   Icons.info_outline,
                                                   size: 12,
-                                                  color: AppTheme.textSecondary,
+                                                  color: context.textSecondary,
                                                 ),
                                               ),
                                             ],
@@ -236,8 +225,8 @@ class _AiInsightInputScreenState extends State<AiInsightInputScreen> {
                                             'Pain ${log.painLevel}/10 · '
                                             '${log.mood} · '
                                             '${log.periodStatus.replaceAll('_', ' ')}',
-                                            style: const TextStyle(
-                                              color: AppTheme.textSecondary,
+                                            style: TextStyle(
+                                              color: context.textSecondary,
                                               fontSize: 12,
                                             ),
                                           ),
@@ -302,6 +291,47 @@ class _AiInsightInputScreenState extends State<AiInsightInputScreen> {
                 ),
               ],
             ),
+    );
+  }
+}
+
+/// Amber info/warning callout. Muted in dark mode so it doesn't glare.
+class _WarningBox extends StatelessWidget {
+  const _WarningBox({required this.icon, required this.message});
+  final IconData icon;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final bgColor = context.isDarkMode
+        ? const Color(0xFF3A2E12)
+        : const Color(0xFFFFF8E1);
+    final borderColor = context.isDarkMode
+        ? const Color(0xFF5C4A1E)
+        : const Color(0xFFFFE082);
+    final fgColor = context.isDarkMode
+        ? const Color(0xFFE0B84D)
+        : const Color(0xFF92610A);
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 14, color: fgColor),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(fontSize: 11, color: fgColor),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

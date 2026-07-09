@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_date_formatter/smart_date_formatter.dart';
+
+import '../../core/theme/app_colors_ext.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/health_record.dart';
 import 'health_record_provider.dart';
@@ -99,6 +101,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
     final provider = context.watch<HealthRecordProvider>();
 
     return Scaffold(
+      backgroundColor: context.bg,
       appBar: AppBar(title: const Text('Health Records')),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppTheme.primary,
@@ -155,7 +158,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
             const SizedBox(height: 16),
             Text(
               provider.errorMessage ?? 'Something went wrong',
-              style: const TextStyle(color: AppTheme.textSecondary),
+              style: TextStyle(color: context.textSecondary),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
@@ -173,24 +176,24 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
     }
 
     if (!provider.hasRecords) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('🗂️', style: TextStyle(fontSize: 64)),
-            SizedBox(height: 16),
+            const Text('🗂️', style: TextStyle(fontSize: 64)),
+            const SizedBox(height: 16),
             Text(
               'No health records yet',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary,
+                color: context.textPrimary,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Tap + to upload your first record',
-              style: TextStyle(color: AppTheme.textSecondary),
+              style: TextStyle(color: context.textSecondary),
             ),
           ],
         ),
@@ -206,7 +209,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
             const SizedBox(height: 16),
             Text(
               'No ${_typeLabels[provider.activeFilter]} records found',
-              style: const TextStyle(color: AppTheme.textSecondary),
+              style: TextStyle(color: context.textSecondary),
             ),
           ],
         ),
@@ -257,6 +260,7 @@ class _RecordCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
+      color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         onTap: onTap,
@@ -265,16 +269,18 @@ class _RecordCard extends StatelessWidget {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: AppTheme.primary.withValues(alpha: 0.1),
+            color: AppTheme.primary.withValues(
+              alpha: context.isDarkMode ? 0.2 : 0.1,
+            ),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: AppTheme.primary, size: 22),
         ),
         title: Text(
           record.title,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w600,
-            color: AppTheme.textPrimary,
+            color: context.textPrimary,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -295,19 +301,16 @@ class _RecordCard extends StatelessWidget {
               children: [
                 Text(
                   record.recordDate.calendar,
-                  style: const TextStyle(
-                    color: AppTheme.textSecondary,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: context.textSecondary, fontSize: 12),
                 ),
                 const SizedBox(width: 4),
                 Tooltip(
                   message: record.recordDate.format('dd MMM yyyy'),
                   triggerMode: TooltipTriggerMode.tap,
-                  child: const Icon(
+                  child: Icon(
                     Icons.info_outline,
                     size: 12,
-                    color: AppTheme.textSecondary,
+                    color: context.textSecondary,
                   ),
                 ),
               ],
@@ -365,16 +368,16 @@ class _FilterChip extends StatelessWidget {
         margin: const EdgeInsets.only(right: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? AppTheme.primary : Colors.white,
+          color: selected ? AppTheme.primary : context.card,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: selected ? AppTheme.primary : const Color(0xFFDDE3EA),
+            color: selected ? AppTheme.primary : context.border,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: selected ? Colors.white : AppTheme.textSecondary,
+            color: selected ? Colors.white : context.textSecondary,
             fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
             fontSize: 13,
           ),

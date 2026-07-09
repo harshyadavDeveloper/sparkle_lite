@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_date_formatter/smart_date_formatter.dart';
 import 'package:sparkle_lite/data/models/symptom_log.dart';
+
+import '../../core/theme/app_colors_ext.dart';
 import '../../core/theme/app_theme.dart';
 import 'symptom_provider.dart';
 
@@ -186,6 +188,7 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
         context.watch<SymptomProvider>().status == SymptomStatus.loading;
 
     return Scaffold(
+      backgroundColor: context.bg,
       appBar: AppBar(
         title: Text(
           widget.existingLog != null ? 'Edit Symptom Log' : 'Log Symptoms',
@@ -208,9 +211,9 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
                     vertical: 16,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.card,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFDDE3EA)),
+                    border: Border.all(color: context.border),
                   ),
                   child: Row(
                     children: [
@@ -225,7 +228,10 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
                             : _selectedDate.isYesterday
                             ? 'Yesterday'
                             : _selectedDate.format('dd MMM yyyy'),
-                        style: const TextStyle(fontSize: 16),
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: context.textPrimary,
+                        ),
                       ),
                     ],
                   ),
@@ -246,6 +252,12 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
                       _periodStatusError = null; // clear error on select
                     }),
                     selectedColor: AppTheme.primary.withValues(alpha: 0.2),
+                    backgroundColor: context.card,
+                    labelStyle: TextStyle(
+                      color: _periodStatus == status
+                          ? AppTheme.primary
+                          : context.textPrimary,
+                    ),
                   );
                 }).toList(),
               ),
@@ -272,6 +284,12 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
                       _flowLevelError = null;
                     }),
                     selectedColor: AppTheme.primary.withValues(alpha: 0.2),
+                    backgroundColor: context.card,
+                    labelStyle: TextStyle(
+                      color: _flowLevel == level
+                          ? AppTheme.primary
+                          : context.textPrimary,
+                    ),
                   );
                 }).toList(),
               ),
@@ -310,6 +328,12 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
                       _moodError = null;
                     }),
                     selectedColor: AppTheme.primary.withValues(alpha: 0.2),
+                    backgroundColor: context.card,
+                    labelStyle: TextStyle(
+                      color: _mood == mood
+                          ? AppTheme.primary
+                          : context.textPrimary,
+                    ),
                   );
                 }).toList(),
               ),
@@ -343,6 +367,10 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
                     },
                     selectedColor: AppTheme.primary.withValues(alpha: 0.2),
                     checkmarkColor: AppTheme.primary,
+                    backgroundColor: context.card,
+                    labelStyle: TextStyle(
+                      color: selected ? AppTheme.primary : context.textPrimary,
+                    ),
                   );
                 }).toList(),
               ),
@@ -353,8 +381,10 @@ class _AddSymptomScreenState extends State<AddSymptomScreen> {
               TextFormField(
                 controller: _notesController,
                 maxLines: 3,
-                decoration: const InputDecoration(
+                style: TextStyle(color: context.textPrimary),
+                decoration: InputDecoration(
                   hintText: 'Any additional notes...',
+                  hintStyle: TextStyle(color: context.textSecondary),
                 ),
               ),
               const SizedBox(height: 32),
@@ -393,10 +423,10 @@ class _SectionLabel extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 14,
-          color: AppTheme.textPrimary,
+          color: context.textPrimary,
         ),
       ),
     );
