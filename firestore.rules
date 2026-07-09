@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    // User profiles — only owner can read/write
+    match /profiles/{userId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+    }
+    // Symptom logs — only owner can read/write their logs
+    match /symptomLogs/{userId}/logs/{logId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+    }
+    // Health records — only owner can read/write
+    match /healthRecords/{userId}/records/{recordId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+    }
+    // AI insights — only owner can read/write
+    match /aiInsights/{userId}/insights/{insightId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+    }
+    // Doctor summaries — only owner can read/write
+    match /doctorSummaries/{userId}/summaries/{summaryId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+    }
+    // Family members — only owner can read/write
+    // Personal gynaecology data is in separate collections — never mixed
+    match /familyMembers/{userId}/members/{memberId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+    }
+    // Privacy settings — only owner can read/write
+    match /privacySettings/{userId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+    }
+    // Notification preferences — only owner can read/write
+    match /notificationPreferences/{userId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+    }
+    // Deny everything else by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
